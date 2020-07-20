@@ -10,17 +10,12 @@ import ReMVVM
 
 struct ShowOnRootReducer: Reducer {
 
-    public static func reduce(state: NavigationTree, with action: ShowOnRoot) -> NavigationTree {
+    public static func reduce(state: Navigation, with action: ShowOnRoot) -> Navigation {
 
-        return NavigationTree(stack: [action.controllerInfo.factory], modals: [])
-    }
-}
-
-struct ShowOnTabReducer: Reducer {
-
-    public static func reduce(state: NavigationTree, with action: ShowOnTab) -> NavigationTree {
-
-        return NavigationTree(stack: [action.controllerInfo.factory], modals: [])
+        let current = NavigationRoot.Main.single
+        let stacks = [(current, [action.controllerInfo.factory])]
+        let root = NavigationRoot(current: current, stacks: stacks)
+        return Navigation(root: root, modals: [])
     }
 }
 
@@ -37,7 +32,7 @@ public struct ShowOnRootMiddleware: AnyMiddleware {
                             interceptor: Interceptor<StoreAction, State>,
                             dispatcher: Dispatcher) where State: StoreState {
 
-        guard state is NavigationTreeContainingState, let action = action as? ShowOnRoot else {
+        guard state is NavigationState, let action = action as? ShowOnRoot else {
             interceptor.next()
             return
         }

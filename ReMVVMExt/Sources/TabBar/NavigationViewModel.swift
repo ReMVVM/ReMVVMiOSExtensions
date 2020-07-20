@@ -11,52 +11,52 @@ import ReMVVM
 import RxSwift
 
 
-open class NavigationViewModel<Tab: NavigationTab>: Initializable, StateObserver, ReMVVMDriven {
+open class NavigationViewModel<Item: NavigationItem>: Initializable, StateObserver, ReMVVMDriven {
     public typealias State = NavigationState
 
-    public let items: Observable<[Tab]>
-    public let selected: Observable<Tab>
+    public let items: Observable<[Item]>
+    public let selected: Observable<Item>
 
     required public init() {
 
         let state = NavigationViewModel.remvvm.stateSubject.rx.state
-        if Tab.self == AnyNavigationTab.self {
-            let tabType = state.map { type(of: $0.navigation.tree.current.base) }.take(1).share()
-            items = state.map { $0.navigation.tree.stacks.map { $0.0 }}
-                        .withLatestFrom(tabType) { items, tabType -> [Tab] in
+        if Item.self == AnyNavigationItem.self {
+            let tabType = state.map { type(of: $0.navigation.root.currentItem.base) }.take(1).share()
+            items = state.map { $0.navigation.root.stacks.map { $0.0 }}
+                        .withLatestFrom(tabType) { items, tabType -> [Item] in
                             items
                                 .filter { type(of: $0.base) == tabType }
-                                .compactMap { $0 as? Tab }
+                                .compactMap { $0 as? Item }
                         }
                         .filter { $0.count != 0}
                         .distinctUntilChanged()
 
-            selected = state.compactMap { $0.navigation.tree.current as? Tab }
+            selected = state.compactMap { $0.navigation.root.currentItem as? Item }
                             .distinctUntilChanged()
         } else {
-            items = state.map { $0.navigation.tree.stacks.compactMap { $0.0.base as? Tab }}
+            items = state.map { $0.navigation.root.stacks.compactMap { $0.0.base as? Item }}
                         .filter { $0.count != 0}
                         .distinctUntilChanged()
 
-            selected = state.compactMap { $0.navigation.tree.current.base as? Tab }
+            selected = state.compactMap { $0.navigation.root.currentItem.base as? Item }
                         .distinctUntilChanged()
         }
     }
 }
 
-public typealias CaseIterableNavigationTab = NavigationTab & CaseIterable
+public typealias CaseIterableNavigationItem = NavigationItem & CaseIterable
 
-public protocol NavigationTab: Hashable {
+public protocol NavigationItem: Hashable {
     var action: StoreAction { get }
 }
 
-public struct AnyNavigationTab: NavigationTab {
+public struct AnyNavigationItem: NavigationItem {
 
     public let action: StoreAction
 
     let base: Any
 
-    public init<T: NavigationTab>(_ tab: T) {
+    public init<T: NavigationItem>(_ tab: T) {
 
         action = tab.action
 
@@ -76,24 +76,24 @@ public struct AnyNavigationTab: NavigationTab {
         _hash(&hasher)
     }
 
-    private var isEqual: (AnyNavigationTab) -> Bool
+    private var isEqual: (AnyNavigationItem) -> Bool
     private var _hash: (inout Hasher) -> Void
 
-    public static func == (lhs: AnyNavigationTab, rhs: AnyNavigationTab) -> Bool {
+    public static func == (lhs: AnyNavigationItem, rhs: AnyNavigationItem) -> Bool {
         lhs.isEqual(rhs)
     }
 
 }
 
-extension NavigationTab {
+extension NavigationItem {
 
-    public var any: AnyNavigationTab {
-        return AnyNavigationTab(self)
+    public var any: AnyNavigationItem {
+        return AnyNavigationItem(self)
     }
 }
 
-extension Collection where Element: NavigationTab {
-    public var any: [AnyNavigationTab] {
+extension Collection where Element: NavigationItem {
+    public var any: [AnyNavigationItem] {
         return map { $0.any }
     }
 }

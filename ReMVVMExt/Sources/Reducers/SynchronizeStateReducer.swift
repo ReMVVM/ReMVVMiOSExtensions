@@ -17,7 +17,7 @@ struct SynchronizeStateReducer: Reducer {
 
     public typealias Action = SynchronizeState
 
-    public static func reduce(state: NavigationTree, with action: SynchronizeState) -> NavigationTree {
+    public static func reduce(state: Navigation, with action: SynchronizeState) -> Navigation {
         if action.type == .navigation {
             return PopReducer.reduce(state: state, with: Pop())
         } else {
@@ -40,7 +40,7 @@ public final class SynchronizeStateMiddleware: AnyMiddleware {
                             interceptor: Interceptor<StoreAction, State>,
                             dispatcher: Dispatcher) where State: StoreState {
 
-        guard let state = state as? NavigationTreeContainingState else {
+        guard let state = state as? NavigationState else {
             interceptor.next()
             return
         }
@@ -49,7 +49,7 @@ public final class SynchronizeStateMiddleware: AnyMiddleware {
 
             if  action.type == .navigation,
                 let navigationCount = uiState.navigationController?.viewControllers.count,
-                state.navigationTree.topStack.count > navigationCount {
+                state.navigation.topStack.count > navigationCount {
 
                 interceptor.next()
             } else if action.type == .modal, uiState.modalControllers.last?.isBeingDismissed == true {

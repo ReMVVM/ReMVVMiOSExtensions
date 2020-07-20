@@ -10,22 +10,27 @@ import UIKit
 import Loaders
 
 public struct UIStateConfig {
-    let initial: () -> UIViewController
-    let navigation: () -> UINavigationController
-    let tabBar: () -> UIViewController
+    let initialController: () -> UIViewController
+    let navigationController: () -> UINavigationController
+    let navigationConfigs: [NavigationConfig]
     let navigationBarHidden: Bool
 
-    public init(initial: @escaping () -> UIViewController,
-                customNavigation: (() -> UINavigationController)? = nil,
-                customTabBar: (() -> UIViewController)? = nil,
+    public init(initialController: @escaping @autoclosure () -> UIViewController,
+                navigationController: (() -> UINavigationController)? = nil,
+                navigationConfigs: [NavigationConfig] = [],
                 navigationBarHidden: Bool = true
         ) {
 
-        self.initial = initial
-        self.navigation = customNavigation ?? { UINavigationController() }
-        self.tabBar = customTabBar ?? { TabBarStoryboards.TabBar.instantiateInitialViewController() }
+        self.initialController = initialController
+        self.navigationController = navigationController ?? { UINavigationController() }
+        self.navigationConfigs = navigationConfigs
         self.navigationBarHidden = navigationBarHidden
     }
+}
+
+
+public protocol NavigationContainerController where Self: UIViewController {
+    var currentNavigationController: UINavigationController? { get }
 }
 
 public final class UIState {
@@ -41,13 +46,13 @@ public final class UIState {
         self.window = window
         self.config = config
 
-        uiStateMainController = config.navigation()
+        uiStateMainController = config.navigationController()
         uiStateMainController.view.bounds = window.bounds
         uiStateMainController.setNavigationBarHidden(config.navigationBarHidden, animated: false)
 
         window.rootViewController = uiStateMainController
 
-        setRoot(controller: config.initial(), animated: false, navigationBarHidden: config.navigationBarHidden)
+        setRoot(controller: config.initialController(), animated: false, navigationBarHidden: config.navigationBarHidden)
     }
 
     public func setRoot(controller: UIViewController, animated: Bool, navigationBarHidden: Bool) {
@@ -62,7 +67,7 @@ public final class UIState {
     }
 
     public var navigationController: UINavigationController? {
-        return modalControllers.compactMap { $0 as? UINavigationController }.last ?? rootViewController.findNavigationController() ?? uiStateMainController
+        return modalControllers.compactMap { $0 as? UINavigationController }.last ?? (rootViewController as? NavigationContainerController)?.currentNavigationController ?? uiStateMainController
     }
 
     private var topPresenter: UIViewController {
@@ -87,21 +92,5 @@ public final class UIState {
         topPresenter.dismiss(animated: animated, completion: { [topPresenter] in
             topPresenter.setNeedsStatusBarAppearanceUpdate()
         })
-    }
-}
-
-extension UIViewController {
-    func findNavigationController(for controller: UIViewController? = nil) -> UINavigationController? {
-        let controller = controller ?? self
-        if let navigation = controller as? UINavigationController {
-            return navigation
-        }
-
-        for controller in controller.children {
-            if let navigation = findNavigationController(for: controller) {
-                return navigation
-            }
-        }
-        return nil
     }
 }

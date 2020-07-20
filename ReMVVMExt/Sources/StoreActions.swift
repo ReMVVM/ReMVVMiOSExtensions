@@ -25,7 +25,6 @@ public struct SynchronizeState: StoreAction {
 
 public struct ShowOnRoot: StoreAction {
 
-    //public let root: NavigationRoot
     public let controllerInfo: LoaderWithFactory
     public let navigationBarHidden: Bool
 
@@ -41,15 +40,14 @@ public struct ShowOnRoot: StoreAction {
     }
 }
 
-public struct ShowOnTab: StoreAction {
+public struct Show: StoreAction {
     public let controllerInfo: LoaderWithFactory
     public let navigationBarHidden: Bool
-    public let tabItemCreator: (() -> UIView)?
-    public let tab: AnyNavigationTab
+    public let item: AnyNavigationItem
+    let navigationType: NavigationType
 
-    public init<Tab: NavigationTab>(tab: Tab,
+    public init<Item: CaseIterableNavigationItem>(on item: Item,
                                     loader: Loader<UIViewController>,
-                                    tabItemCreator: (() -> UIView)? = nil,
                                     factory: ViewModelFactory,
                                     animated: Bool = true,
                                     navigationBarHidden: Bool = true) {
@@ -58,8 +56,8 @@ public struct ShowOnTab: StoreAction {
                                                 factory: factory,
                                                 animated: animated)
         self.navigationBarHidden = navigationBarHidden
-        self.tab = tab.any
-        self.tabItemCreator = tabItemCreator
+        self.item = AnyNavigationItem(item)
+        self.navigationType = Item.navigationType
     }
 }
 
