@@ -26,7 +26,9 @@ struct SynchronizeStateReducer: Reducer {
     }
 }
 
-public final class SynchronizeStateMiddleware: AnyMiddleware {
+
+
+public final class SynchronizeStateMiddleware<State: NavigationState>: Middleware {
     public let uiState: UIState
 
     public init(uiState: UIState) {
@@ -35,15 +37,10 @@ public final class SynchronizeStateMiddleware: AnyMiddleware {
 
     private var disposeBag = DisposeBag()
 
-    public func onNext<State>(for state: State,
-                            action: StoreAction,
-                            interceptor: Interceptor<StoreAction, State>,
-                            dispatcher: Dispatcher) where State: StoreState {
-
-        guard let state = state as? NavigationState else {
-            interceptor.next()
-            return
-        }
+    public func onNext(for state: State,
+                       action: StoreAction,
+                       interceptor: Interceptor<StoreAction, State>,
+                       dispatcher: Dispatcher) {
 
         if let action = action as? SynchronizeState {
 
@@ -62,7 +59,6 @@ public final class SynchronizeStateMiddleware: AnyMiddleware {
                 self?.disposeBag = disposeBag
                 self?.uiState.navigationController?.rx.didShow
                     .subscribe(onNext: { con in
-                        print(con.viewController)
                         dispatcher.dispatch(action: SynchronizeState(.navigation))
                     })
                     .disposed(by: disposeBag)

@@ -24,22 +24,17 @@ public struct ShowModalReducer: Reducer {
     }
 }
 
-public struct ShowModalMiddleware: AnyMiddleware {
+public struct ShowModalMiddleware<State: NavigationState>: Middleware {
 
     public let uiState: UIState
     public init(uiState: UIState) {
         self.uiState = uiState
     }
 
-    public func onNext<State>(for state: State,
-                            action: StoreAction,
-                            interceptor: Interceptor<StoreAction, State>,
-                            dispatcher: Dispatcher) where State: StoreState {
-
-        guard state is NavigationState, let action = action as? ShowModal else {
-            interceptor.next()
-            return
-        }
+    public func onNext(for state: State,
+                            action: ShowModal,
+                            interceptor: Interceptor<ShowModal, State>,
+                            dispatcher: Dispatcher) {
 
         let uiState = self.uiState
 
@@ -55,7 +50,6 @@ public struct ShowModalMiddleware: AnyMiddleware {
 
         interceptor.next { state in
             // side effect
-            guard let state = state as? NavigationState else { return }
 
             //dismiss not needed modals
             uiState.dismiss(animated: action.controllerInfo.animated,

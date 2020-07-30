@@ -18,9 +18,10 @@ let package = Package(
             url: "https://github.com/dgrzeszczak/Loaders",
             .branch("feature/ViewModelDriven")
         ),
+//        .package(path: "../ReMVVM"),
         .package(
             url: "https://github.com/dgrzeszczak/ReMVVM",
-            .branch("feature/packageManager")
+            .branch("feature/2.1.0")
         ),
         .package(
             url: "https://github.com/ReactiveX/RxSwift",

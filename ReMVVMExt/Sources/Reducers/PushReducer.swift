@@ -50,7 +50,7 @@ public struct PushReducer: Reducer {
     }
 }
 
-public struct PushMiddleware: AnyMiddleware {
+public struct PushMiddleware<State: NavigationState>: Middleware {
 
     public let uiState: UIState
 
@@ -58,21 +58,15 @@ public struct PushMiddleware: AnyMiddleware {
         self.uiState = uiState
     }
 
-    public func onNext<State>(for state: State,
-                            action: StoreAction,
-                            interceptor: Interceptor<StoreAction, State>,
-                            dispatcher: Dispatcher) where State: StoreState {
-
-        guard state is NavigationState, let action = action as? Push else {
-            interceptor.next()
-            return
-        }
+    public func onNext(for state: State,
+                       action: Push,
+                       interceptor: Interceptor<Push, State>,
+                       dispatcher: Dispatcher) {
 
         let uiState = self.uiState
 
         interceptor.next { state in
             // side effect
-            guard let state = state as? NavigationState else { return }
 
             //dismiss not needed modals
             uiState.dismiss(animated: action.controllerInfo.animated,

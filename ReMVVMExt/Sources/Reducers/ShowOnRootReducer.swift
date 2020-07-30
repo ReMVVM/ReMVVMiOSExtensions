@@ -19,7 +19,7 @@ struct ShowOnRootReducer: Reducer {
     }
 }
 
-public struct ShowOnRootMiddleware: AnyMiddleware {
+public struct ShowOnRootMiddleware<State: NavigationState>: Middleware {
 
     public let uiState: UIState
 
@@ -27,15 +27,10 @@ public struct ShowOnRootMiddleware: AnyMiddleware {
         self.uiState = uiState
     }
 
-    public func onNext<State>(for state: State,
-                            action: StoreAction,
-                            interceptor: Interceptor<StoreAction, State>,
-                            dispatcher: Dispatcher) where State: StoreState {
-
-        guard state is NavigationState, let action = action as? ShowOnRoot else {
-            interceptor.next()
-            return
-        }
+    public func onNext(for state: State,
+                       action: ShowOnRoot,
+                       interceptor: Interceptor<ShowOnRoot, State>,
+                       dispatcher: Dispatcher) {
 
         let uiState = self.uiState
 

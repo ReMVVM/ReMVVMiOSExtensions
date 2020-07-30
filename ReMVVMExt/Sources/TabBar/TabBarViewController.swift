@@ -12,31 +12,31 @@ import RxCocoa
 import RxSwift
 import UIKit
 
-public typealias UITabBarItemConfig<T> = (_ tabBar: UITabBar, _ items: [ItemWithTabBarItem<T>]) -> HeightWithOverlay where T: NavigationItem
-
-public typealias CustomTabBarItemConfig<T> = (_ tabBar: UITabBar, _ items: [T]) -> CustomReturn where T: NavigationItem
-
-public typealias CustomConfig<T> = (_ items: [T]) -> NavigationContainerController where T: NavigationItem
-
 public struct NavigationConfig {
+
+    public typealias TabBarItems<T> = (_ tabBar: UITabBar, _ items: [TabBarItem<T>]) -> TabBarItemsResult where T: NavigationItem
+
+    public typealias CustomControls<T> = (_ tabBar: UITabBar, _ items: [T]) -> CustomControlsResult where T: NavigationItem
+
+    public typealias Custom<T> = (_ items: [T]) -> NavigationContainerController where T: NavigationItem
 
     public enum ConfigError: Error {
         case toManyElements
     }
 
-    public init<T>(_ creator: @escaping UITabBarItemConfig<T>, for type: T.Type = T.self) throws where T: CaseIterableNavigationItem {
+    public init<T>(_ creator: @escaping TabBarItems<T>, for type: T.Type = T.self) throws where T: CaseIterableNavigationItem {
         guard T.allCases.count <= 5 else { throw ConfigError.toManyElements }
 
         navigationType = T.navigationType
         config = .uiTabBar { tabBar, items in
             return creator(tabBar, items.compactMap {
                 guard let item = $0.item.base as? T else { return nil }
-                return ItemWithTabBarItem<T>(item: item, uiTabBarItem: $0.uiTabBarItem)
+                return TabBarItem<T>(item: item, uiTabBarItem: $0.uiTabBarItem)
             })
         }
     }
 
-    public init<T>(_ creator: @escaping CustomTabBarItemConfig<T>, for type: T.Type = T.self) where T: CaseIterableNavigationItem {
+    public init<T>(_ creator: @escaping CustomControls<T>, for type: T.Type = T.self) where T: CaseIterableNavigationItem {
 
         navigationType = T.navigationType
         config = .customTabBar { tabBar, items in
@@ -44,7 +44,7 @@ public struct NavigationConfig {
         }
     }
 
-    public init<T>(_ creator: @escaping CustomConfig<T>, for type: T.Type = T.self) where T: CaseIterableNavigationItem {
+    public init<T>(_ creator: @escaping Custom<T>, for type: T.Type = T.self) where T: CaseIterableNavigationItem {
 
         navigationType = T.navigationType
         config = .custom { items in
@@ -56,18 +56,18 @@ public struct NavigationConfig {
     let config: Config<AnyNavigationItem>
     enum Config<T> where T: NavigationItem {
 
-        case uiTabBar(UITabBarItemConfig<T>)
-        case customTabBar(CustomTabBarItemConfig<T>)
-        case custom(CustomConfig<T>)
+        case uiTabBar(TabBarItems<T>)
+        case customTabBar(CustomControls<T>)
+        case custom(Custom<T>)
     }
 }
 
-public struct ItemWithTabBarItem<T> {
+public struct TabBarItem<T> {
     public let item: T
     public let uiTabBarItem: UITabBarItem
 }
 
-public struct HeightWithOverlay {
+public struct TabBarItemsResult {
     public let height: CGFloat?
     public let overlay: UIView?
 
@@ -77,7 +77,7 @@ public struct HeightWithOverlay {
     }
 }
 
-public struct CustomReturn {
+public struct CustomControlsResult {
     public let height: CGFloat?
     public let overelay: UIView
     public let controls: [UIControl]
@@ -89,47 +89,8 @@ public struct CustomReturn {
     }
 }
 
-//public struct TabBarConfig {
-//
-//    enum ConfigError: Error {
-//        case toManyElements
-//    }
-//
-//    let height: CGFloat?
-//    let configureItems: ItemsConfigurator<AnyNavigationItem>?
-//    let configureTabBar: ((UITabBar) -> Void)?
-//
-//    let all: [AnyNavigationItem]
-//
-//    public init<Tab>(height: CGFloat? = nil,
-//                     configureTabBar: ((UITabBar) -> Void)? = nil,
-//                     configureItems: ItemsConfigurator<Tab>? = nil,
-//                     tabType: Tab.Type = Tab.self) throws where Tab: CaseIterableNavigationItem {
-//        self.height = height
-//        self.configureTabBar = configureTabBar
-//        self.configureItems = configureItems?.any
-//        all = Tab.allCases.any
-//
-//        if case .custom = configureItems { return }
-//        else if all.count > 5 {
-//            throw ConfigError.toManyElements
-//        }
-//    }
-//
-//    public  enum ItemsConfigurator<Tab> {
-//        case uiTabBar(([(Tab, UITabBarItem)]) -> UIView?)
-//        case custom(([Tab]) -> (UIView, [UIControl]))
-//
-//        var any: ItemsConfigurator<AnyNavigationItem> {
-//            switch self {
-//            case .uiTabBar(let creator):
-//                return .uiTabBar { creator($0.map { ($0.0.base as! Tab, $0.1) }) }
-//            case .custom(let creator):
-//                return .custom { creator($0.map { $0.base as! Tab }) }
-//            }
-//        }
-//    }
-//}
+
+// TAB BAR CONTROLLER IMPLEMENTATION - cleanup needed :)
 
 private class TabBar: UITabBar {
 
@@ -184,7 +145,7 @@ private class TabBar: UITabBar {
     var _selectedItem: UITabBarItem? {
         didSet {
             if  _selectedItem != oldValue,
-                let tabBarItem = _selectedItem as? TabBarItem,
+                let tabBarItem = _selectedItem as? TabItem,
                 let control = tabBarItem.controlItem {
 
                 controlItems?.forEach {
@@ -206,7 +167,7 @@ private class TabBar: UITabBar {
     }
 }
 
-class TabBarItem: UITabBarItem {
+class TabItem: UITabBarItem {
 
     let navigationTab: AnyNavigationItem
     let controlItem: UIControl?
@@ -240,7 +201,6 @@ class ContainerViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
 }
-
 
 class TabBarViewController: UITabBarController, NavigationContainerController, ReMVVMDriven {
     init(config: NavigationConfig?) {
@@ -309,7 +269,7 @@ class TabBarViewController: UITabBarController, NavigationContainerController, R
             }
 
             tabItems = zip(items, controlItems).map {
-                TabBarItem(navigationTab: $0, controlItem: $1)
+                TabItem(navigationTab: $0, controlItem: $1)
             }
 
             customTabBar.customView = customView
@@ -318,12 +278,12 @@ class TabBarViewController: UITabBarController, NavigationContainerController, R
             moreNavigationController.navigationBar.isHidden = true
 
         } else {
-            let tabBarItems: [TabBarItem] = items.map { TabBarItem(navigationTab: $0, controlItem: nil) }
+            let tabBarItems: [TabItem] = items.map { TabItem(navigationTab: $0, controlItem: nil) }
 
             tabItems = tabBarItems
 
             if case let .uiTabBar(configurator) = config?.config {
-                let result = configurator(customTabBar, tabBarItems.map { ItemWithTabBarItem(item: $0.navigationTab, uiTabBarItem: $0) })
+                let result = configurator(customTabBar, tabBarItems.map { TabBarItem(item: $0.navigationTab, uiTabBarItem: $0) })
                 customTabBar.customView = result.overlay
                 customTabBar.controlItems = nil
                 customTabBar.height = result.height
@@ -346,7 +306,7 @@ class TabBarViewController: UITabBarController, NavigationContainerController, R
     private func setup(current: AnyNavigationItem) {
 
         let selected = viewControllers?.first {
-            guard let tab = $0.tabBarItem as? TabBarItem else { return false }
+            guard let tab = $0.tabBarItem as? TabItem else { return false }
             return current == tab.navigationTab
         }
 
@@ -356,7 +316,7 @@ class TabBarViewController: UITabBarController, NavigationContainerController, R
     }
 
     private func sendAction(for viewController: UIViewController) {
-        guard let tab = viewController.tabBarItem as? TabBarItem else { return }
+        guard let tab = viewController.tabBarItem as? TabItem else { return }
         remvvm.dispatch(action: tab.navigationTab.action)
     }
 

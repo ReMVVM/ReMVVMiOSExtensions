@@ -13,8 +13,8 @@ public protocol ConvertActionMiddleware: Middleware {
     // without new names it will require declaration of Action and State typealiases in implementation struct/class
     // please check if that is fixed in compiler in next xcode/swift releses
 
-    associatedtype Source: StoreAction = Action
-    associatedtype ConvertState: StoreState = State
+    associatedtype Source = Action
+    associatedtype ConvertState = State
 
     associatedtype Destination: StoreAction
 

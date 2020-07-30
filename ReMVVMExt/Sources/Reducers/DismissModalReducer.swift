@@ -25,7 +25,7 @@ public struct DismissModalReducer: Reducer {
 
 }
 
-public struct DismissModalMiddleware: AnyMiddleware {
+public struct DismissModalMiddleware<State: NavigationState>: Middleware {
 
     public let uiState: UIState
 
@@ -33,15 +33,10 @@ public struct DismissModalMiddleware: AnyMiddleware {
         self.uiState = uiState
     }
 
-    public func onNext<State>(for state: State,
-                            action: StoreAction,
-                            interceptor: Interceptor<StoreAction, State>,
-                            dispatcher: Dispatcher) where State: StoreState {
-
-        guard state is NavigationState, let action = action as? DismissModal else {
-            interceptor.next()
-            return
-        }
+    public func onNext(for state: State,
+                       action: DismissModal,
+                       interceptor: Interceptor<DismissModal, State>,
+                       dispatcher: Dispatcher) {
 
         let uiState = self.uiState
 

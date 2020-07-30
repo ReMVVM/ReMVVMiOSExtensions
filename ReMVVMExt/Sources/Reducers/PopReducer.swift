@@ -50,7 +50,7 @@ public struct PopReducer: Reducer {
 
 }
 
-public struct PopMiddleware: AnyMiddleware {
+public struct PopMiddleware<State: NavigationState>: Middleware {
 
     public let uiState: UIState
 
@@ -58,15 +58,10 @@ public struct PopMiddleware: AnyMiddleware {
         self.uiState = uiState
     }
 
-    public func onNext<State>(for state: State,
-                            action: StoreAction,
-                            interceptor: Interceptor<StoreAction, State>,
-                            dispatcher: Dispatcher) where State: StoreState {
-
-        guard let state = state as? NavigationState, let action = action as? Pop else {
-            interceptor.next()
-            return
-        }
+    public func onNext(for state: State,
+                       action: Pop,
+                       interceptor: Interceptor<Pop, State>,
+                       dispatcher: Dispatcher)  {
 
         guard state.navigation.topStack.count > 1 else { return }
 
