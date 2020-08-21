@@ -20,9 +20,7 @@ public struct TabBarItemViewModel {
     public let isSelected: Observable<Bool>
 
     public let action: Observable<StoreAction>
-    public var tintColor: Observable<UIColor> {
-        return self.isSelected.compactMap { $0 ? tab.activeTintColor : tab.inactiveTintColor }
-    }
+    public var tintable: Observable<Bool>
 
     public init<Tab: NavigationTab>(tab: Tab, isSelected: Bool) {
         title = .just(tab.title)
@@ -30,5 +28,6 @@ public struct TabBarItemViewModel {
         iconImageActive = .just(tab.iconImageActive)
         self.isSelected = .just(isSelected)
         action = .just(tab.action)
+        tintable = .just(tab.tintable)
     }
 }

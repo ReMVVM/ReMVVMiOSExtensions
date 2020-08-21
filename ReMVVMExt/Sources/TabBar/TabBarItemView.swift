@@ -45,8 +45,8 @@ open class TabBarItemView: UIView, ReMVVMDriven {
 
     open func bind(_ viewModel: TabBarItemViewModel) {
         viewModel.title.bind(to: titleLabel.rx.text).disposed(by: disposeBag)
-        Observable.combineLatest(viewModel.isSelected, viewModel.iconImage, viewModel.iconImageActive, viewModel.tintColor)
-            .map { UIImage(data: $0.0 ? $0.2 : $0.1)?.withRenderingMode($0.3 == nil ? .alwaysOriginal : .alwaysTemplate) }
+        Observable.combineLatest(viewModel.isSelected, viewModel.iconImage, viewModel.iconImageActive, viewModel.tintable)
+            .map { UIImage(data: $0.0 ? $0.2 : $0.1)?.withRenderingMode($0.3 ? .alwaysTemplate : .alwaysOriginal) }
             .bind(to: iconImageView.rx.image)
             .disposed(by: disposeBag)
         viewModel.tintColor
