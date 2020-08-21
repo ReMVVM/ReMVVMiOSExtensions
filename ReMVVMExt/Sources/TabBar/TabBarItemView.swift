@@ -50,6 +50,9 @@ open class TabBarItemView: UIView, ReMVVMDriven {
             .map { UIImage(data: $0) }
             .bind(to: iconImageView.rx.image)
             .disposed(by: disposeBag)
+        viewModel.tintColor
+            .subscribe(next: { [iconImageView] color in iconImageView?.tintColor = color })
+            .disposed(by: disposeBag)
         rx.tap
             .skipUntil(viewModel.isSelected)
             .withLatestFrom(viewModel.action)

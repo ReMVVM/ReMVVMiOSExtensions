@@ -38,6 +38,8 @@ public struct AnyNavigationTab: NavigationTab {
     public let iconImage: Data
     public let iconImageActive: Data
     public let action: StoreAction
+    public let inactiveTintColor: UIColor?
+    public let activeTintColor: UIColor?
 }
 
 public protocol NavigationTab: Equatable {
@@ -45,6 +47,8 @@ public protocol NavigationTab: Equatable {
     var iconImage: Data { get }
     var iconImageActive: Data { get }
     var action: StoreAction { get }
+    var inactiveTintColor: UIColor? { get }
+    var activeTintColor: UIColor? { get }
 }
 
 extension NavigationTab {

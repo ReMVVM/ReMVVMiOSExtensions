@@ -20,6 +20,9 @@ public struct TabBarItemViewModel {
     public let isSelected: Observable<Bool>
 
     public let action: Observable<StoreAction>
+    public var tintColor: Observable<UIColor> {
+        return self.isSelected.compactMap { $0 ? tab.activeTintColor : tab.inactiveTintColor }
+    }
 
     public init<Tab: NavigationTab>(tab: Tab, isSelected: Bool) {
         title = .just(tab.title)
