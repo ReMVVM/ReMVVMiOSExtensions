@@ -68,21 +68,21 @@ public struct TabBarItem<T> {
 }
 
 public struct TabBarItemsResult {
-    public let height: CGFloat?
+    public let height: (() -> CGFloat)?
     public let overlay: UIView?
 
-    public init(height: CGFloat? = nil, overlay: UIView? = nil) {
+    public init(height: (() -> CGFloat)? = nil, overlay: UIView? = nil) {
         self.height = height
         self.overlay = overlay
     }
 }
 
 public struct CustomControlsResult {
-    public let height: CGFloat?
+    public let height: (() -> CGFloat)?
     public let overelay: UIView
     public let controls: [UIControl]
 
-    public init(height: CGFloat? = nil, overelay: UIView, controls: [UIControl]) {
+    public init(height: (() -> CGFloat)? = nil, overelay: UIView, controls: [UIControl]) {
         self.height = height
         self.overelay = overelay
         self.controls = controls
@@ -105,11 +105,14 @@ private class TabBar: UITabBar {
 
     var controlItems: [UIControl]?
 
-    var height: CGFloat? {
+    var height: (() -> CGFloat)? {
         didSet {
+
             setNeedsLayout()
         }
     }
+
+    private var _height: CGFloat?
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -117,6 +120,7 @@ private class TabBar: UITabBar {
 
     override func layoutSubviews() {
         super.layoutSubviews()
+        _height = height?()
         customView?.frame = bounds
     }
 
@@ -136,7 +140,7 @@ private class TabBar: UITabBar {
 
     override func sizeThatFits(_ size: CGSize) -> CGSize {
         var size = super.sizeThatFits(size)
-        if let height = height {
+        if let height = _height {
             size.height = height
         }
         return size

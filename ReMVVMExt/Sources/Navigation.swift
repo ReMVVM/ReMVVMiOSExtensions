@@ -14,10 +14,10 @@ public protocol NavigationState: StoreState {
 }
 
 public struct NavigationRoot {
-    let currentItem: AnyNavigationItem
-    let stacks: [(AnyNavigationItem, [ViewModelFactory])]
+    public let currentItem: AnyNavigationItem
+    public let stacks: [(AnyNavigationItem, [ViewModelFactory])]
 
-    var currentStack: [ViewModelFactory] { stacks.first { $0.0 == currentItem }?.1 ?? [] }
+    public var currentStack: [ViewModelFactory] { stacks.first { $0.0 == currentItem }?.1 ?? [] }
 
     public init(current: AnyNavigationItem, stacks: [(AnyNavigationItem, [ViewModelFactory])]) {
         self.currentItem = current
