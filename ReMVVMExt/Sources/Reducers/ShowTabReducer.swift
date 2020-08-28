@@ -28,7 +28,6 @@ struct ShowReducer: Reducer {
         let factory = action.controllerInfo.factory ?? state.factory
         if action.navigationType == state.root.navigationType { //check the type is the same
             stacks = state.root.stacks.map {
-                //TODO add second tap (make it configurable)
                 guard $0.0 == current, $0.1.isEmpty else { return $0 }
                 return ($0.0, [factory])
             }
@@ -53,17 +52,6 @@ public struct ShowMiddleware<State: NavigationState>: Middleware {
 
     public func onNext(for state: State, action: Show, interceptor: Interceptor<Show, State>, dispatcher: Dispatcher) {
 
-//TODO add second tap
-//        if let rootState = state as? NavigationTreeContainingState, rootState.navigationTree.tree.stack.count > 1
-//            && navigationState.navigationTree.tree.current == tabAction.tab.any {
-//            interceptor.next(action: action) { [uiState] _ in
-//                (uiState.rootViewController as? TabBarViewController)?
-//                    .topNavigation?.popToRootViewController(animated: true)
-//            }
-//            return
-//        }
-
-//TODO
         guard state.navigation.root.currentItem != action.item else { return }
 
         interceptor.next(action: action) { [uiState] _ in

@@ -319,9 +319,16 @@ class TabBarViewController: UITabBarController, NavigationContainerController, R
         customTabBar._selectedItem = selectedViewController?.tabBarItem
     }
 
+    private var previousSelectedViewController: UIViewController?
     private func sendAction(for viewController: UIViewController) {
         guard let tab = viewController.tabBarItem as? TabItem else { return }
-        remvvm.dispatch(action: tab.navigationTab.action)
+
+        if viewController != previousSelectedViewController {
+            remvvm.dispatch(action: tab.navigationTab.action)
+            previousSelectedViewController = viewController
+        } else {
+            remvvm.dispatch(action: Pop(mode: .popToRoot, animated: true))
+        }
     }
 
 }

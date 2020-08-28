@@ -80,11 +80,6 @@ public struct PushMiddleware<State: NavigationState>: Middleware {
 
             // push controller
             let controller = action.controllerInfo.loader.load()
-            //todo dg
-//            if let topViewController = navigationController.topViewController {
-//                let button = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
-//                topViewController.navigationItem.backBarButtonItem = button
-//            }
 
             if let pop = action.pop {
                 var viewControllers = navigationController.viewControllers

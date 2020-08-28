@@ -9,6 +9,7 @@
 import ReMVVM
 import RxSwift
 
+//TODO move AnyStore to ReMVVM ? 
 extension Store {
     public var any: AnyStore { AnyStore(store: self) }
 }
