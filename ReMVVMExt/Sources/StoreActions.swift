@@ -29,7 +29,7 @@ public struct ShowOnRoot: StoreAction {
     public let navigationBarHidden: Bool
 
     public init(loader: Loader<UIViewController>,
-                factory: ViewModelFactory,
+                factory: ViewModelFactory? = nil,
                 animated: Bool = true,
                 navigationBarHidden: Bool = true) {
 
@@ -48,7 +48,7 @@ public struct Show: StoreAction {
 
     public init<Item: CaseIterableNavigationItem>(on item: Item,
                                     loader: Loader<UIViewController>,
-                                    factory: ViewModelFactory,
+                                    factory: ViewModelFactory? = nil,
                                     animated: Bool = true,
                                     navigationBarHidden: Bool = true) {
 
@@ -66,7 +66,7 @@ public struct Push: StoreAction {
     public let controllerInfo: LoaderWithFactory
     public let pop: PopMode?
     public init(loader: Loader<UIViewController>,
-                factory: ViewModelFactory,
+                factory: ViewModelFactory? = nil,
                 pop: PopMode? = nil,
                 animated: Bool = true) {
         self.pop = pop
@@ -98,7 +98,7 @@ public struct ShowModal: StoreAction {
     public let presentationStyle: UIModalPresentationStyle
 
     public init(loader: Loader<UIViewController>,
-                factory: ViewModelFactory,
+                factory: ViewModelFactory? = nil,
                 animated: Bool = true,
                 withNavigationController: Bool = true,
                 showOverSplash: Bool = true,
@@ -129,10 +129,10 @@ public struct DismissModal: StoreAction {
 public struct LoaderWithFactory {
 
     public let loader: Loader<UIViewController>
-    public let factory: ViewModelFactory
+    public let factory: ViewModelFactory?
     public let animated: Bool
 
-    public init(loader: Loader<UIViewController>, factory: ViewModelFactory, animated: Bool = true) {
+    public init(loader: Loader<UIViewController>, factory: ViewModelFactory?, animated: Bool = true) {
         self.loader = loader
         self.factory = factory
         self.animated = animated

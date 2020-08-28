@@ -9,6 +9,31 @@
 import ReMVVM
 import RxSwift
 
+extension Store {
+    public var any: AnyStore { AnyStore(store: self) }
+}
+
+public struct AnyStore: Dispatcher, Subject, ReactiveCompatible {
+
+    private let store: Dispatcher & Subject
+
+    public func dispatch(action: StoreAction) {
+        store.dispatch(action: action)
+    }
+
+    public func add<Observer>(observer: Observer) where Observer : StateObserver {
+        store.add(observer: observer)
+    }
+
+    public func remove<Observer>(observer: Observer) where Observer : StateObserver {
+        store.remove(observer: observer)
+    }
+
+    public init<State>(store: Store<State>) {
+        self.store = store
+    }
+}
+
 extension ReMVVM: ReactiveCompatible { }
 extension Store: ReactiveCompatible { }
 extension AnyStateSubject: ReactiveCompatible { }

@@ -15,7 +15,7 @@ public struct ShowModalReducer: Reducer {
 
     public static func reduce(state: Navigation, with action: ShowModal) -> Navigation {
 
-        let factory = action.controllerInfo.factory
+        let factory = action.controllerInfo.factory ?? state.factory
         let modal: Navigation.Modal = action.withNavigationController ? .navigation([factory]) : .single(factory)
         // dismiss all modals without navigation
         let modals = state.modals.reversed().drop { !$0.hasNavigation }.reversed() + [modal]

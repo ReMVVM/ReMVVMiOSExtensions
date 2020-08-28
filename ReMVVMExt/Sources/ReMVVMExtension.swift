@@ -42,7 +42,7 @@ public enum ReMVVMExtension {
                                                     uiStateConfig: UIStateConfig,
                                                     stateMappers: [StateMapper<ApplicationState>] = [],
                                                     reducer: AnyReducer<ApplicationState>,
-                                                    middleware: [AnyMiddleware]) -> Dispatcher & Subject {
+                                                    middleware: [AnyMiddleware]) -> AnyStore {
 
         let reducer = AnyReducer { state, action -> NavigationStateIOS<ApplicationState> in
             return NavigationStateIOS<ApplicationState>(
@@ -67,7 +67,7 @@ public enum ReMVVMExtension {
                                                           uiStateConfig: UIStateConfig,
                                                           stateMappers: [StateMapper<State>] = [],
                                                           reducer: AnyReducer<State>,
-                                                          middleware: [AnyMiddleware]) -> Dispatcher & Subject {
+                                                          middleware: [AnyMiddleware]) -> AnyStore {
 
         let uiState = UIState(window: window, config: uiStateConfig)
 
@@ -88,7 +88,7 @@ public enum ReMVVMExtension {
 
         store.add(observer: EndEditingFormListener<State>(uiState: uiState))
         ReMVVM.initialize(with: store)
-        return store
+        return store.any
     }
 }
 

@@ -107,7 +107,7 @@ private class TabBar: UITabBar {
 
     var height: (() -> CGFloat)? {
         didSet {
-
+            _height = height?()
             setNeedsLayout()
         }
     }
@@ -121,6 +121,7 @@ private class TabBar: UITabBar {
     override func layoutSubviews() {
         super.layoutSubviews()
         _height = height?()
+
         customView?.frame = bounds
     }
 
@@ -141,7 +142,7 @@ private class TabBar: UITabBar {
     override func sizeThatFits(_ size: CGSize) -> CGSize {
         var size = super.sizeThatFits(size)
         if let height = _height {
-            size.height = height
+            size.height = height + safeAreaInsets.bottom
         }
         return size
     }
@@ -188,17 +189,16 @@ class TabItem: UITabBarItem {
 }
 
 class ContainerViewController: UIViewController {
-    let currentNavigationController: UINavigationController?
+    let currentNavigationController: UINavigationController
 
-    init() {
-        let topNavigation = UINavigationController()
-        self.currentNavigationController = topNavigation
+    init(navigationController: UINavigationController) {
+        self.currentNavigationController = navigationController
         super.init(nibName: nil, bundle: nil)
 
-        topNavigation.willMove(toParent: self)
-        addChild(topNavigation)
-        view.addSubview(topNavigation.view)
-        topNavigation.didMove(toParent: self)
+        navigationController.willMove(toParent: self)
+        addChild(navigationController)
+        view.addSubview(navigationController.view)
+        navigationController.didMove(toParent: self)
     }
 
     required init?(coder: NSCoder) {
@@ -207,9 +207,9 @@ class ContainerViewController: UIViewController {
 }
 
 class TabBarViewController: UITabBarController, NavigationContainerController, ReMVVMDriven {
-    init(config: NavigationConfig?) {
+    init(config: NavigationConfig?, navigationControllerFactory: @escaping () -> UINavigationController) {
         self.config = config
-
+        self.navigationControllerFactory = navigationControllerFactory
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -227,6 +227,7 @@ class TabBarViewController: UITabBarController, NavigationContainerController, R
     }
 
     private var config: NavigationConfig?
+    private var navigationControllerFactory: () -> UINavigationController
 
     @Provided private var viewModel: NavigationViewModel<AnyNavigationItem>?
 
@@ -236,7 +237,6 @@ class TabBarViewController: UITabBarController, NavigationContainerController, R
 
     private var customTabBar: TabBar { return tabBar as! TabBar}
 
-//    private var moreDelegate: UITableViewDelegate?
     open override func viewDidLoad() {
         setValue(TabBar(), forKey: "tabBar")
         super.viewDidLoad()
@@ -301,7 +301,7 @@ class TabBarViewController: UITabBarController, NavigationContainerController, R
         }
 
         viewControllers = tabItems.map { tab in
-            let controller = ContainerViewController()
+            let controller = ContainerViewController(navigationController: navigationControllerFactory())
             controller.tabBarItem = tab
             return controller
         }

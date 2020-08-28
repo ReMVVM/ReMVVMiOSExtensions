@@ -17,16 +17,17 @@ public struct PushReducer: Reducer {
         let root: NavigationRoot
         // dismiss all modals without navigation
         var modals: [Navigation.Modal] = state.modals.reversed().drop { !$0.hasNavigation }.reversed()
+        let factory = action.controllerInfo.factory ?? state.factory
 
         if let modal = modals.last, case .navigation(let stack) = modal {
             let newStack = updateStack(stack, for: action.pop)
-            modals = modals.dropLast() + [.navigation(newStack + [action.controllerInfo.factory])]
+            modals = modals.dropLast() + [.navigation(newStack + [factory])]
             root = state.root
         } else {
             let current = state.root.currentItem
             var stacks = state.root.stacks
             if let index = stacks.firstIndex(where: { $0.0 == current }) {
-                let stack = updateStack(stacks[index].1, for: action.pop) + [action.controllerInfo.factory]
+                let stack = updateStack(stacks[index].1, for: action.pop) + [factory]
                 stacks[index] = (current, stack)
             }
 

@@ -25,16 +25,17 @@ struct ShowReducer: Reducer {
 
         let current = action.item
         var stacks: [(AnyNavigationItem, [ViewModelFactory])]
+        let factory = action.controllerInfo.factory ?? state.factory
         if action.navigationType == state.root.navigationType { //check the type is the same
             stacks = state.root.stacks.map {
                 //TODO add second tap (make it configurable)
                 guard $0.0 == current, $0.1.isEmpty else { return $0 }
-                return ($0.0, [action.controllerInfo.factory])
+                return ($0.0, [factory])
             }
         } else {
             stacks = action.navigationType.map {
                 guard $0 == current else { return ($0, []) }
-                return ($0, [action.controllerInfo.factory])
+                return ($0, [factory])
             }
         }
         let root = NavigationRoot(current: current, stacks: stacks)
@@ -78,7 +79,7 @@ public struct ShowMiddleware<State: NavigationState>: Middleware {
                 if case let .custom(configurator) = config?.config {
                     containerController = configurator(action.navigationType)
                 } else {
-                    let tabController = TabBarViewController(config: config)
+                    let tabController = TabBarViewController(config: config, navigationControllerFactory: uiState.config.navigationController)
                     tabController.loadViewIfNeeded()
 
                     containerController = tabController

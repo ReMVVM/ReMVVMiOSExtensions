@@ -13,7 +13,8 @@ struct ShowOnRootReducer: Reducer {
     public static func reduce(state: Navigation, with action: ShowOnRoot) -> Navigation {
 
         let current = NavigationRoot.Main.single
-        let stacks = [(current, [action.controllerInfo.factory])]
+        let factory = action.controllerInfo.factory ?? state.factory
+        let stacks = [(current, [factory])]
         let root = NavigationRoot(current: current, stacks: stacks)
         return Navigation(root: root, modals: [])
     }
