@@ -14,10 +14,11 @@ let package = Package(
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
-        .package(
-            url: "https://github.com/dgrzeszczak/Loaders",
-            .branch("feature/ViewModelDriven")
-        ),
+//        .package(
+//            url: "https://github.com/dgrzeszczak/Loaders",
+//            .branch("feature/ViewModelDriven")
+//        ),
+        .package(url: "https://github.com/dgrzeszczak/Loaders", .revision("872dc1f035c1cd77d16e0e8dc9c52c316ee6b0a4")),
         .package(
             url: "https://github.com/dgrzeszczak/ReMVVM",
             .branch("feature/packageManager")
