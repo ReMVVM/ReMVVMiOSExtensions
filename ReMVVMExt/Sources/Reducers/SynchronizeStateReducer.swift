@@ -63,9 +63,7 @@ public final class SynchronizeStateMiddleware<State: NavigationState>: Middlewar
                     })
                     .disposed(by: disposeBag)
 
-                guard   let modal = self?.uiState.modalControllers.last,
-                        modal.modalPresentationStyle != .fullScreen && modal.modalPresentationStyle != .overFullScreen
-                else { return }
+                guard let modal = self?.uiState.modalControllers.last else { return }
 
                 modal.rx.viewDidDisappear
                     .subscribe(onNext: { _ in
