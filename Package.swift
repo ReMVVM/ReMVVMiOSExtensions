@@ -21,7 +21,7 @@ let package = Package(
 //        .package(path: "../ReMVVM"),
         .package(
             url: "https://github.com/dgrzeszczak/ReMVVM",
-            .branch("feature/Combine")
+            .branch("feature/CombineRxSift6")
         ),
         .package(
             url: "https://github.com/ReactiveX/RxSwift",
