@@ -20,6 +20,15 @@
         }
       },
       {
+        "package": "ReMVVM",
+        "repositoryURL": "https://github.com/dgrzeszczak/ReMVVM",
+        "state": {
+          "branch": "feature/Combine",
+          "revision": "38ba0c8fbf3d16d810f3d3ddc331ac918cccf94e",
+          "version": null
+        }
+      },
+      {
         "package": "RxSwift",
         "repositoryURL": "https://github.com/ReactiveX/RxSwift",
         "state": {
