@@ -14,7 +14,7 @@ extension Store {
     public var any: AnyStore { AnyStore(store: self) }
 }
 
-public struct AnyStore: Dispatcher, Subject, ReactiveCompatible {
+public class AnyStore: Dispatcher, Subject, ReactiveCompatible {
 
     private let store: Dispatcher & Subject
 

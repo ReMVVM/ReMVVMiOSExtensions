@@ -18,14 +18,14 @@ let package = Package(
             url: "https://github.com/dgrzeszczak/Loaders",
             .branch("feature/ViewModelDriven")
         ),
-        .package(path: "../ReMVVM"),
-//        .package(
-//            url: "https://github.com/dgrzeszczak/ReMVVM",
-//            .branch("feature/Combine")
-//        ),
+//        .package(path: "../ReMVVM"),
+        .package(
+            url: "https://github.com/dgrzeszczak/ReMVVM",
+            .branch("feature/Combine")
+        ),
         .package(
             url: "https://github.com/ReactiveX/RxSwift",
-            .upToNextMajor(from: "6.0.0")
+            .upToNextMajor(from: "5.0.1")
         ),
         .package(url: "https://github.com/dgrzeszczak/MVVM", from: "1.0.0"),
     ],
