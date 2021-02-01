@@ -23,8 +23,8 @@
         "package": "ReMVVM",
         "repositoryURL": "https://github.com/dgrzeszczak/ReMVVM",
         "state": {
-          "branch": "feature/Combine",
-          "revision": "38ba0c8fbf3d16d810f3d3ddc331ac918cccf94e",
+          "branch": "feature/CombineRxSwift6",
+          "revision": "f8996d3fbb137fb0ac6881ac21d62c50e19a54ca",
           "version": null
         }
       },
