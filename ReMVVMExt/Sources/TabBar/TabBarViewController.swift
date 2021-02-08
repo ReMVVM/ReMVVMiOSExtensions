@@ -322,11 +322,7 @@ class TabBarViewController: UITabBarController, NavigationContainerController, R
     private func sendAction(for viewController: UIViewController) {
         guard let tab = viewController.tabBarItem as? TabItem else { return }
 
-        if viewController != selectedViewController {
-            remvvm.dispatch(action: tab.navigationTab.action)
-        } else {
-            remvvm.dispatch(action: Pop(mode: .popToRoot, animated: true))
-        }
+        remvvm.dispatch(action: tab.navigationTab.action)
     }
 
 }
