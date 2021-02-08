@@ -42,7 +42,8 @@ public enum ReMVVMExtension {
                                                     uiStateConfig: UIStateConfig,
                                                     stateMappers: [StateMapper<ApplicationState>] = [],
                                                     reducer: AnyReducer<ApplicationState>,
-                                                    middleware: [AnyMiddleware]) -> AnyStore {
+                                                    prefixMiddleware: [AnyMiddleware],
+                                                    suffixMiddleware: [AnyMiddleware]) -> AnyStore {
 
         let reducer = AnyReducer { state, action -> NavigationStateIOS<ApplicationState> in
             return NavigationStateIOS<ApplicationState>(
@@ -59,7 +60,8 @@ public enum ReMVVMExtension {
                                uiStateConfig: uiStateConfig,
                                stateMappers: stateMappers,
                                reducer: reducer,
-                               middleware: middleware)
+                               prefixMiddleware: prefixMiddleware,
+                               suffixMiddleware: suffixMiddleware)
     }
 
     public static func initialize<State: NavigationState>(with state: State,
