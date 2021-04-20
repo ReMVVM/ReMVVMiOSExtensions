@@ -53,24 +53,24 @@ public final class SynchronizeStateMiddleware<State: NavigationState>: Middlewar
                 uiState.modalControllers.removeLast()
                 interceptor.next()
             }
-        } else {
-            interceptor.next { [weak self] _ in
-                let disposeBag = DisposeBag()
-                self?.disposeBag = disposeBag
-                self?.uiState.navigationController?.rx.didShow
-                    .subscribe(onNext: { con in
-                        dispatcher.dispatch(action: SynchronizeState(.navigation))
-                    })
-                    .disposed(by: disposeBag)
+        }
 
-                guard let modal = self?.uiState.modalControllers.last else { return }
+        interceptor.next { [weak self] _ in
+            let disposeBag = DisposeBag()
+            self?.disposeBag = disposeBag
+            self?.uiState.navigationController?.rx.didShow
+                .subscribe(onNext: { con in
+                    dispatcher.dispatch(action: SynchronizeState(.navigation))
+                })
+                .disposed(by: disposeBag)
 
-                modal.rx.viewDidDisappear
-                    .subscribe(onNext: { _ in
-                        dispatcher.dispatch(action: SynchronizeState(.modal))
-                    })
-                    .disposed(by: disposeBag)
-            }
+            guard let modal = self?.uiState.modalControllers.last else { return }
+
+            modal.rx.viewDidDisappear
+                .subscribe(onNext: { _ in
+                    dispatcher.dispatch(action: SynchronizeState(.modal))
+                })
+                .disposed(by: disposeBag)
         }
     }
 }
