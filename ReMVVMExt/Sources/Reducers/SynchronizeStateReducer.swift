@@ -51,27 +51,35 @@ public final class SynchronizeStateMiddleware<State: NavigationState>: Middlewar
                 interceptor.next()
             } else if action.type == .modal, uiState.modalControllers.last?.isBeingDismissed == true {
                 uiState.modalControllers.removeLast()
-                interceptor.next()
+                interceptor.next { [weak self] _ in
+                    let disposeBag = DisposeBag()
+                    self?.disposeBag = disposeBag
+                    self?.subscribeLastModal(dispatcher: dispatcher)
+                }
+            }
+        } else {
+            interceptor.next { [weak self] _ in
+                let disposeBag = DisposeBag()
+                self?.disposeBag = disposeBag
+                self?.uiState.navigationController?.rx.didShow
+                    .subscribe(onNext: { con in
+                        dispatcher.dispatch(action: SynchronizeState(.navigation))
+                    })
+                    .disposed(by: disposeBag)
+
+                self?.subscribeLastModal(dispatcher: dispatcher)
             }
         }
+    }
 
-        interceptor.next { [weak self] _ in
-            let disposeBag = DisposeBag()
-            self?.disposeBag = disposeBag
-            self?.uiState.navigationController?.rx.didShow
-                .subscribe(onNext: { con in
-                    dispatcher.dispatch(action: SynchronizeState(.navigation))
-                })
-                .disposed(by: disposeBag)
+    private func subscribeLastModal(dispatcher: Dispatcher) {
+        guard let modal = self.uiState.modalControllers.last else { return }
 
-            guard let modal = self?.uiState.modalControllers.last else { return }
-
-            modal.rx.viewDidDisappear
-                .subscribe(onNext: { _ in
-                    dispatcher.dispatch(action: SynchronizeState(.modal))
-                })
-                .disposed(by: disposeBag)
-        }
+        modal.rx.viewDidDisappear
+            .subscribe(onNext: { _ in
+                dispatcher.dispatch(action: SynchronizeState(.modal))
+            })
+            .disposed(by: disposeBag)
     }
 }
 
