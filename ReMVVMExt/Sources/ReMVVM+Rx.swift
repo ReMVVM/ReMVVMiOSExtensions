@@ -14,9 +14,9 @@ extension Store {
     public var any: AnyStore { AnyStore(store: self) }
 }
 
-public class AnyStore: Dispatcher, Subject, ReactiveCompatible {
+public class AnyStore: Dispatcher, Source, ReactiveCompatible {
 
-    private let store: Dispatcher & Subject
+    private let store: Dispatcher & Source
 
     public func dispatch(action: StoreAction) {
         store.dispatch(action: action)
@@ -37,7 +37,7 @@ public class AnyStore: Dispatcher, Subject, ReactiveCompatible {
 
 extension ReMVVM: ReactiveCompatible { }
 extension Store: ReactiveCompatible { }
-extension AnyStateSubject: ReactiveCompatible { }
+extension AnyStateSource: ReactiveCompatible { }
 
 extension Reactive: ObserverType where Base: Dispatcher {
     public func on(_ event: Event<StoreAction>) {
@@ -46,7 +46,7 @@ extension Reactive: ObserverType where Base: Dispatcher {
     }
 }
 
-extension Reactive where Base: StateSubject {
+extension Reactive where Base: StateSource {
 
     public var state: Observable<Base.State> {
 
@@ -74,18 +74,18 @@ extension Reactive where Base: StateSubject {
     }
 }
 
-public protocol StateSubjectContainer: StateAssociated {
-    var stateSubject: AnyStateSubject<State> { get }
-}
-
-extension ReMVVM: StateSubjectContainer, StateAssociated where Base: StateAssociated { }
-
-extension Reactive where Base: StateSubjectContainer {
-
-    public var state: Observable<Base.State> {
-        base.stateSubject.rx.state
-    }
-}
+//public protocol StateSubjectContainer: StateAssociated {
+//    var stateSubject: AnyStateSource<State> { get }
+//}
+//
+//extension ReMVVM: StateSubjectContainer, StateAssociated where Base: StateAssociated { }
+//
+//extension Reactive where Base: StateSubjectContainer {
+//
+//    public var state: Observable<Base.State> {
+//        base.stateSubject.rx.state
+//    }
+//}
 
 //#if swift(>=5.1)
 //@propertyWrapper

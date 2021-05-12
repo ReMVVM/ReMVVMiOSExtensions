@@ -19,7 +19,7 @@ open class NavigationViewModel<Item: NavigationItem>: Initializable, StateObserv
 
     required public init() {
 
-        let state = NavigationViewModel.remvvm.stateSubject.rx.state
+        let state = NavigationViewModel.remvvm.source.rx.state
         if Item.self == AnyNavigationItem.self {
             let tabType = state.map { type(of: $0.navigation.root.currentItem.base) }.take(1).share()
             items = state.map { $0.navigation.root.stacks.map { $0.0 }}
