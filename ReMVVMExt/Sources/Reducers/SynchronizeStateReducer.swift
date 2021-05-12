@@ -51,7 +51,11 @@ public final class SynchronizeStateMiddleware<State: NavigationState>: Middlewar
                 interceptor.next()
             } else if action.type == .modal, uiState.modalControllers.last?.isBeingDismissed == true {
                 uiState.modalControllers.removeLast()
-                interceptor.next()
+                interceptor.next { [weak self] _ in
+                    let disposeBag = DisposeBag()
+                    self?.disposeBag = disposeBag
+                    self?.subscribeLastModal(dispatcher: dispatcher)
+                }
             }
         } else {
             interceptor.next { [weak self] _ in
@@ -63,15 +67,19 @@ public final class SynchronizeStateMiddleware<State: NavigationState>: Middlewar
                     })
                     .disposed(by: disposeBag)
 
-                guard let modal = self?.uiState.modalControllers.last else { return }
-
-                modal.rx.viewDidDisappear
-                    .subscribe(onNext: { _ in
-                        dispatcher.dispatch(action: SynchronizeState(.modal))
-                    })
-                    .disposed(by: disposeBag)
+                self?.subscribeLastModal(dispatcher: dispatcher)
             }
         }
+    }
+
+    private func subscribeLastModal(dispatcher: Dispatcher) {
+        guard let modal = self.uiState.modalControllers.last else { return }
+
+        modal.rx.viewDidDisappear
+            .subscribe(onNext: { _ in
+                dispatcher.dispatch(action: SynchronizeState(.modal))
+            })
+            .disposed(by: disposeBag)
     }
 }
 
