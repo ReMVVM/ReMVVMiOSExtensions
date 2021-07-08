@@ -30,6 +30,7 @@
 		8CC32408231FAE0B008A49EB /* NavigationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0825183922AA9BA50062A4EB /* NavigationViewModel.swift */; };
 		8CC3240A231FAE0B008A49EB /* TabBarViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0825183B22AA9BA50062A4EB /* TabBarViewController.swift */; };
 		8CC3240B231FB0F0008A49EB /* ShowTabReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0825181922AA90C50062A4EB /* ShowTabReducer.swift */; };
+		B7F863E326976CD000C63E85 /* SetViewControllersReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B7F863E226976CD000C63E85 /* SetViewControllersReducer.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -59,6 +60,7 @@
 		08C7B5C0234FBD8D000CDF1E /* ViewModelProvided.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ViewModelProvided.swift; sourceTree = "<group>"; };
 		37372F2223E912D700B8641C /* Package.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Package.swift; sourceTree = "<group>"; };
 		8C45B5FE23293259004B4645 /* Loaders.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Loaders.framework; path = ../Carthage/Build/iOS/Loaders.framework; sourceTree = "<group>"; };
+		B7F863E226976CD000C63E85 /* SetViewControllersReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetViewControllersReducer.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -132,6 +134,7 @@
 				0825181922AA90C50062A4EB /* ShowTabReducer.swift */,
 				0825181A22AA90C50062A4EB /* ShowModalReducer.swift */,
 				0825181B22AA90C50062A4EB /* ShowOnRootReducer.swift */,
+				B7F863E226976CD000C63E85 /* SetViewControllersReducer.swift */,
 			);
 			path = Reducers;
 			sourceTree = "<group>";
@@ -253,6 +256,7 @@
 				0825182522AA90C50062A4EB /* ShowModalReducer.swift in Sources */,
 				0825182022AA90C50062A4EB /* SynchronizeStateReducer.swift in Sources */,
 				0825182322AA90C50062A4EB /* DismissModalReducer.swift in Sources */,
+				B7F863E326976CD000C63E85 /* SetViewControllersReducer.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -126,6 +126,18 @@ public struct DismissModal: StoreAction {
     }
 }
 
+public struct SetViewControllers: StoreAction {
+
+    // TODO: remove animated from LoaderWithFactory
+    public let loadersWithFactory: [LoaderWithFactory]
+    public let animated: Bool
+
+    public init(loadersWithFactory: [LoaderWithFactory], animated: Bool = true) {
+        self.loadersWithFactory = loadersWithFactory
+        self.animated = animated
+    }
+}
+
 public struct LoaderWithFactory {
 
     public let loader: Loader<UIViewController>

@@ -85,14 +85,16 @@ public struct Navigation {
 public enum NavigationReducer {
 
     public static func reduce(state: Navigation, with action: StoreAction) -> Navigation {
-        let reducers: [ AnyReducer<Navigation>] = [
-                        ShowOnRootReducer.any,
-                        ShowReducer.any,
-                        SynchronizeStateReducer.any,
-                        PushReducer.any,
-                        PopReducer.any,
-                        ShowModalReducer.any,
-                        DismissModalReducer.any]
+        let reducers: [AnyReducer<Navigation>] = [
+            ShowOnRootReducer.any,
+            ShowReducer.any,
+            SynchronizeStateReducer.any,
+            PushReducer.any,
+            PopReducer.any,
+            ShowModalReducer.any,
+            DismissModalReducer.any,
+            SetViewControllersReducer.any
+        ]
 
         return AnyReducer(with: reducers).reduce(state: state, with: action)
     }

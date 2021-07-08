@@ -78,7 +78,8 @@ public enum ReMVVMExtension {
             ShowOnRootMiddleware<State>(uiState: uiState).any,
             ShowMiddleware<State>(uiState: uiState).any,
             PushMiddleware<State>(uiState: uiState).any,
-            PopMiddleware<State>(uiState: uiState).any
+            PopMiddleware<State>(uiState: uiState).any,
+            SetViewControllersMiddleware<State>(uiState: uiState).any,
             ] + middleware
 
         let store = Store<State>(with: state,
