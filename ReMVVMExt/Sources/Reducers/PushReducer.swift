@@ -70,7 +70,7 @@ public struct PushMiddleware<State: NavigationState>: Middleware {
             // side effect
 
             //dismiss not needed modals
-            uiState.dismiss(animated: action.controllerInfo.animated,
+            uiState.dismiss(animated: action.animated,
                             number: uiState.modalControllers.count - state.navigation.modals.count)
 
             guard let navigationController = uiState.navigationController else {
