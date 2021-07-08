@@ -17,17 +17,17 @@ public struct PushReducer: Reducer {
         let root: NavigationRoot
         // dismiss all modals without navigation
         var modals: [Navigation.Modal] = state.modals.reversed().drop { !$0.hasNavigation }.reversed()
-        let factory = action.controllerInfo.factory ?? state.factory
+        let factories = action.controllersInfo.map { $0.factory ?? state.factory }
 
         if let modal = modals.last, case .navigation(let stack) = modal {
             let newStack = updateStack(stack, for: action.pop)
-            modals = modals.dropLast() + [.navigation(newStack + [factory])]
+            modals = modals.dropLast() + [.navigation(newStack + factories)]
             root = state.root
         } else {
             let current = state.root.currentItem
             var stacks = state.root.stacks
             if let index = stacks.firstIndex(where: { $0.0 == current }) {
-                let stack = updateStack(stacks[index].1, for: action.pop) + [factory]
+                let stack = updateStack(stacks[index].1, for: action.pop) + factories
                 stacks[index] = (current, stack)
             }
 
@@ -79,7 +79,7 @@ public struct PushMiddleware<State: NavigationState>: Middleware {
             }
 
             // push controller
-            let controller = action.controllerInfo.loader.load()
+            let newControllers = action.controllersInfo.map { $0.loader.load() }
 
             if let pop = action.pop {
                 var viewControllers = navigationController.viewControllers
@@ -91,10 +91,12 @@ public struct PushMiddleware<State: NavigationState>: Middleware {
                     viewControllers = viewControllers.dropLast(dropCount)
                 }
 
-                navigationController.setViewControllers(viewControllers + [controller],
-                                                        animated: action.controllerInfo.animated)
+                navigationController.setViewControllers(viewControllers + newControllers,
+                                                        animated: action.animated)
             } else {
-                navigationController.pushViewController(controller, animated: action.controllerInfo.animated)
+                var viewControllers = navigationController.viewControllers
+                navigationController.setViewControllers(viewControllers + newControllers,
+                                                        animated: action.animated)
             }
 
         }

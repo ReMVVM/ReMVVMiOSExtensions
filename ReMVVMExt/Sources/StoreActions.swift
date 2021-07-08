@@ -63,17 +63,30 @@ public struct Show: StoreAction {
 
 public struct Push: StoreAction {
 
-    public let controllerInfo: LoaderWithFactory
+    public let controllersInfo: [LoaderWithFactory]
     public let pop: PopMode?
+    public let animated: Bool
+
     public init(loader: Loader<UIViewController>,
                 factory: ViewModelFactory? = nil,
                 pop: PopMode? = nil,
                 animated: Bool = true) {
-        self.pop = pop
-        self.controllerInfo = LoaderWithFactory(loader: loader,
-                                                factory: factory,
-                                                animated: animated)
+
+        let loader = LoaderWithFactory(loader: loader,
+                                           factory: factory,
+                                           animated: animated)
+
+        self.init(loaders: [loader], pop: pop, animated: animated)
     }
+
+    public init(loaders: [LoaderWithFactory],
+                pop: PopMode? = nil,
+                animated: Bool = true) {
+        self.pop = pop
+        self.controllersInfo = loaders
+        self.animated = animated
+    }
+
 }
 
 public enum PopMode {
@@ -130,10 +143,14 @@ public struct SetViewControllers: StoreAction {
 
     // TODO: remove animated from LoaderWithFactory
     public let loadersWithFactory: [LoaderWithFactory]
+    public let pop: PopMode?
     public let animated: Bool
 
-    public init(loadersWithFactory: [LoaderWithFactory], animated: Bool = true) {
+    public init(loadersWithFactory: [LoaderWithFactory],
+                pop: PopMode? = nil,
+                animated: Bool = true) {
         self.loadersWithFactory = loadersWithFactory
+        self.pop = pop
         self.animated = animated
     }
 }
