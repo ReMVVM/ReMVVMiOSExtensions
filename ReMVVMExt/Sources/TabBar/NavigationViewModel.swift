@@ -20,7 +20,7 @@ open class NavigationViewModel<Item: NavigationItem>: Initializable {
 
     required public init() {
 
-        let state = NavigationViewModel.remvvm.source.rx.state
+        let state = _state.rx.state
         if Item.self == AnyNavigationItem.self {
             let tabType = state.map { type(of: $0.navigation.root.currentItem.base) }.take(1).share()
             items = state.map { $0.navigation.root.stacks.map { $0.0 }}
