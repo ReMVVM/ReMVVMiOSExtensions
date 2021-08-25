@@ -7,15 +7,16 @@
 //
 
 import Foundation
-import ReMVVM
+import ReMVVMCore
+import ReMVVMRxSwift
 import RxSwift
 
-
-open class NavigationViewModel<Item: NavigationItem>: Initializable, StateObserver, ReMVVMDriven {
-    public typealias State = NavigationState
+open class NavigationViewModel<Item: NavigationItem>: Initializable {
 
     public let items: Observable<[Item]>
     public let selected: Observable<Item>
+
+    @ReMVVM.State var state: NavigationState?
 
     required public init() {
 

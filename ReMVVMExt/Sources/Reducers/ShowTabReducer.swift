@@ -7,7 +7,7 @@
 //
 
 import Loaders
-import ReMVVM
+import ReMVVMCore
 import UIKit
 
 typealias NavigationType = [AnyNavigationItem]

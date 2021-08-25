@@ -5,7 +5,7 @@
 //  Created by Dariusz Grzeszczak on 07/06/2019.
 //
 
-import ReMVVM
+import ReMVVMCore
 import RxSwift
 import UIKit
 
@@ -35,21 +35,25 @@ public struct NavigationStateIOS<ApplicationState>: NavigationState {
     }
 }
 
+private enum AppNavigationReducer<State, R>: Reducer where R: Reducer, R.State == State, R.Action == StoreAction {
+
+    static func reduce(state: NavigationStateIOS<State>, with action: StoreAction) -> NavigationStateIOS<State> {
+        NavigationStateIOS<State>(
+            appState: R.reduce(state: state.appState, with: action),
+            navigation: NavigationReducer.reduce(state: state.navigation, with: action)
+        )
+    }
+}
+
+// todo rename to ReMVVM
 public enum ReMVVMExtension {
 
-    public static func initialize<ApplicationState>(with state: ApplicationState,
+    public static func initialize<ApplicationState, R>(with state: ApplicationState,
                                                     window: UIWindow,
                                                     uiStateConfig: UIStateConfig,
                                                     stateMappers: [StateMapper<ApplicationState>] = [],
-                                                    reducer: AnyReducer<ApplicationState>,
-                                                    middleware: [AnyMiddleware]) -> AnyStore {
-
-        let reducer = AnyReducer { state, action -> NavigationStateIOS<ApplicationState> in
-            return NavigationStateIOS<ApplicationState>(
-                appState: reducer.reduce(state: state.appState, with: action),
-                navigation: NavigationReducer.reduce(state: state.navigation, with: action)
-            )
-        }
+                                                    reducer: R.Type,
+                                                    middleware: [AnyMiddleware]) -> AnyStore where R: Reducer, R.State == ApplicationState, R.Action == StoreAction {
 
         let appMapper = StateMapper<NavigationStateIOS<ApplicationState>>(for: \.appState)
         let stateMappers = [appMapper] + stateMappers.map { $0.map(with: \.appState) }
@@ -58,27 +62,27 @@ public enum ReMVVMExtension {
                                window: window,
                                uiStateConfig: uiStateConfig,
                                stateMappers: stateMappers,
-                               reducer: reducer,
+                               reducer: AppNavigationReducer<ApplicationState, R>.self,
                                middleware: middleware)
     }
 
-    public static func initialize<State: NavigationState>(with state: State,
+    public static func initialize<State, R>(with state: State,
                                                           window: UIWindow,
                                                           uiStateConfig: UIStateConfig,
                                                           stateMappers: [StateMapper<State>] = [],
-                                                          reducer: AnyReducer<State>,
-                                                          middleware: [AnyMiddleware]) -> AnyStore {
+                                                          reducer: R.Type,
+                                                          middleware: [AnyMiddleware]) -> AnyStore where State: NavigationState, R: Reducer, R.State == State, R.Action == StoreAction {
 
         let uiState = UIState(window: window, config: uiStateConfig)
 
-        let middleware: [AnyMiddleware] = [
-            SynchronizeStateMiddleware<State>(uiState: uiState).any,
-            ShowModalMiddleware<State>(uiState: uiState).any,
-            DismissModalMiddleware<State>(uiState: uiState).any,
-            ShowOnRootMiddleware<State>(uiState: uiState).any,
-            ShowMiddleware<State>(uiState: uiState).any,
-            PushMiddleware<State>(uiState: uiState).any,
-            PopMiddleware<State>(uiState: uiState).any
+        let middleware = [
+            SynchronizeStateMiddleware<State>(uiState: uiState),
+            ShowModalMiddleware<State>(uiState: uiState),
+            DismissModalMiddleware<State>(uiState: uiState),
+            ShowOnRootMiddleware<State>(uiState: uiState),
+            ShowMiddleware<State>(uiState: uiState),
+            PushMiddleware<State>(uiState: uiState),
+            PopMiddleware<State>(uiState: uiState)
             ] + middleware
 
         let store = Store<State>(with: state,

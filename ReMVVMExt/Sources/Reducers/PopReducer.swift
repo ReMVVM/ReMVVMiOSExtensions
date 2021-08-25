@@ -6,7 +6,7 @@
 //  Copyright © 2019. All rights reserved.
 //
 
-import ReMVVM
+import ReMVVMCore
 
 public struct PopReducer: Reducer {
 

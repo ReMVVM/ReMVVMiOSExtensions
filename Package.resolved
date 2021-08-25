@@ -5,26 +5,26 @@
         "package": "Loaders",
         "repositoryURL": "https://github.com/dgrzeszczak/Loaders",
         "state": {
-          "branch": "feature/ViewModelDriven",
-          "revision": "872dc1f035c1cd77d16e0e8dc9c52c316ee6b0a4",
+          "branch": "feature/bundleModule",
+          "revision": "4791afe16c1523a43b350687aff31069a6c0eb73",
           "version": null
         }
       },
       {
-        "package": "MVVM",
-        "repositoryURL": "https://github.com/dgrzeszczak/MVVM",
+        "package": "ReMVVM",
+        "repositoryURL": "https://github.com/ReMVVM/ReMVVM",
         "state": {
-          "branch": null,
-          "revision": "178ab99ea3286629975c728cbeb68d0dcd0a3c33",
-          "version": "1.0.1"
+          "branch": "feature/Combine",
+          "revision": "fbb31b582a85efe4cf81f01fe9dee508a9e8ee37",
+          "version": null
         }
       },
       {
-        "package": "ReMVVM",
-        "repositoryURL": "https://github.com/dgrzeszczak/ReMVVM",
+        "package": "ReMVVMRxSwift",
+        "repositoryURL": "https://github.com/ReMVVM/ReMVVMRxSwift",
         "state": {
-          "branch": "feature/CombineRxSwift6",
-          "revision": "f8996d3fbb137fb0ac6881ac21d62c50e19a54ca",
+          "branch": "master",
+          "revision": "259b468878fb58aca005ea735f1df946e91cf89e",
           "version": null
         }
       },

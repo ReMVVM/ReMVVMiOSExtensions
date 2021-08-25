@@ -6,7 +6,7 @@
 //  Copyright © 2019. All rights reserved.
 //
 
-import ReMVVM
+import ReMVVMCore
 
 public protocol NavigationState: StoreState {
 
@@ -82,18 +82,17 @@ public struct Navigation {
     }
 }
 
-public enum NavigationReducer {
+public enum NavigationReducer: Reducer {
+
+    static let reducer = ShowOnRootReducer
+        .compose(with: ShowReducer.self)
+        .compose(with: SynchronizeStateReducer.self)
+        .compose(with: PushReducer.self)
+        .compose(with: PopReducer.self)
+        .compose(with: ShowModalReducer.self)
+        .compose(with: DismissModalReducer.self)
 
     public static func reduce(state: Navigation, with action: StoreAction) -> Navigation {
-        let reducers: [ AnyReducer<Navigation>] = [
-                        ShowOnRootReducer.any,
-                        ShowReducer.any,
-                        SynchronizeStateReducer.any,
-                        PushReducer.any,
-                        PopReducer.any,
-                        ShowModalReducer.any,
-                        DismissModalReducer.any]
-
-        return AnyReducer(with: reducers).reduce(state: state, with: action)
+        return reducer.reduce(state: state, with: action)
     }
 }

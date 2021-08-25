@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import ReMVVM
+import ReMVVMCore
 import RxSwift
 import RxCocoa
 import UIKit

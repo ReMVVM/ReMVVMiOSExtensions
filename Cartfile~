@@ -1,3 +1,0 @@
-git "git@github.com:dgrzeszczak/ReMVVM.git" "feature/2.0.0"
-github "ReactiveX/RxSwift" ~> 5.0
-git "git@github.com:dgrzeszczak/Loaders.git" "feature/ViewModelDriven"

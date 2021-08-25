@@ -7,7 +7,7 @@
 //
 
 import Loaders
-import ReMVVM
+import ReMVVMCore
 import RxSwift
 import UIKit
 
