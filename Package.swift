@@ -16,18 +16,19 @@ let package = Package(
         // Dependencies declare other packages that this package depends on.
         .package(
             url: "https://github.com/dgrzeszczak/Loaders",
-            .branch("feature/bundleModule")
+            .upToNextMajor(from: "1.2.0")
         ),
 //        .package(path: "../ReMVVM"),
         .package(
             url: "https://github.com/dgrzeszczak/ReMVVM",
-            .branch("feature/CombineRxSwift6")
+            .upToNextMajor(from: "2.0.0")
         ),
         .package(
             url: "https://github.com/ReactiveX/RxSwift",
             .upToNextMajor(from: "6.0.0")
         ),
-        .package(url: "https://github.com/dgrzeszczak/MVVM", from: "1.0.0"),
+        .package(url: "https://github.com/dgrzeszczak/MVVM",
+            .upToNextMajor(from: "1.0.0")),
     ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
