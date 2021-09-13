@@ -105,12 +105,12 @@ public final class EndEditingFormListener<State: StoreState>: StateObserver {
         self.uiState = uiState
     }
 
-    public func willChange(state: State) {
+    public func willReduce(state: State) {
         uiState.rootViewController.view.endEditing(true)
         uiState.modalControllers.last?.view.endEditing(true)
     }
 
-    public func didChange(state: State, oldState: State?) {
+    public func didReduce(state: State, oldState: State?) {
         disposeBag = DisposeBag()
 
         uiState.navigationController?.rx

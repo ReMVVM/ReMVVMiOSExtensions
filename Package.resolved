@@ -5,27 +5,9 @@
         "package": "Loaders",
         "repositoryURL": "https://github.com/dgrzeszczak/Loaders",
         "state": {
-          "branch": "feature/bundleModule",
-          "revision": "4791afe16c1523a43b350687aff31069a6c0eb73",
-          "version": null
-        }
-      },
-      {
-        "package": "ReMVVM",
-        "repositoryURL": "https://github.com/ReMVVM/ReMVVM",
-        "state": {
-          "branch": "feature/Combine",
-          "revision": "fbb31b582a85efe4cf81f01fe9dee508a9e8ee37",
-          "version": null
-        }
-      },
-      {
-        "package": "ReMVVMRxSwift",
-        "repositoryURL": "https://github.com/ReMVVM/ReMVVMRxSwift",
-        "state": {
-          "branch": "master",
-          "revision": "259b468878fb58aca005ea735f1df946e91cf89e",
-          "version": null
+          "branch": null,
+          "revision": "56a5148b8025b70caaf8a3537777a02be595087a",
+          "version": "1.2.0"
         }
       },
       {
@@ -33,8 +15,8 @@
         "repositoryURL": "https://github.com/ReactiveX/RxSwift",
         "state": {
           "branch": null,
-          "revision": "c8742ed97fc2f0c015a5ea5eddefb064cd7532d2",
-          "version": "6.0.0"
+          "revision": "7c17a6ccca06b5c107cfa4284e634562ddaf5951",
+          "version": "6.2.0"
         }
       }
     ]
