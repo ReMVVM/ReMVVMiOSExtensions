@@ -24,11 +24,11 @@ let package = Package(
         ),
         .package(
             url: "https://github.com/ReMVVM/ReMVVM",
-            .branch("feature/Combine")
+            .upToNextMajor(from: "3.0.0")
         ),
         //.package(path: "../ReMVVM"),
         .package(url: "https://github.com/ReMVVM/ReMVVMRxSwift",
-                 .branch("master")),
+                 .upToNextMinor(from: "0.3.0")),
         //.package(path: "../ReMVVMRxSwift"),
     ],
     targets: [
