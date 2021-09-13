@@ -28,7 +28,8 @@ let package = Package(
         ),
         //.package(path: "../ReMVVM"),
         .package(url: "https://github.com/ReMVVM/ReMVVMRxSwift",
-                 .upToNextMinor(from: "0.3.0")),
+                 .upToNextMajor(from: "1.0.0")
+        ),
 //        .package(path: "../ReMVVMRxSwift"),
     ],
     targets: [
