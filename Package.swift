@@ -16,15 +16,15 @@ let package = Package(
         // Dependencies declare other packages that this package depends on.
         .package(
             url: "https://github.com/dgrzeszczak/Loaders",
-            .branch("feature/bundleModule")
+            .upToNextMajor(from: "1.2.0")
         ),
         .package(
             url: "https://github.com/ReactiveX/RxSwift",
             .upToNextMajor(from: "6.0.0")
         ),
         .package(
-            url: "https://github.com/ReMVVM/ReMVVM", from: "3.0.0"
-//            .upToNextMajor(from: "3.0.0")
+            url: "https://github.com/ReMVVM/ReMVVM",
+            .upToNextMajor(from: "3.0.0")
         ),
         //.package(path: "../ReMVVM"),
         .package(url: "https://github.com/ReMVVM/ReMVVMRxSwift",
