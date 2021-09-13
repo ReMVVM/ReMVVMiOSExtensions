@@ -7,7 +7,7 @@
 //
 
 import Loaders
-import ReMVVM
+import ReMVVMCore
 import UIKit
 
 typealias NavigationType = [AnyNavigationItem]
@@ -52,7 +52,11 @@ public struct ShowMiddleware<State: NavigationState>: Middleware {
 
     public func onNext(for state: State, action: Show, interceptor: Interceptor<Show, State>, dispatcher: Dispatcher) {
 
-        guard state.navigation.root.currentItem != action.item else { return }
+        guard state.navigation.root.currentItem != action.item else {
+
+            dispatcher.dispatch(action: Pop(mode: .popToRoot, animated: true))
+            return
+        }
 
         interceptor.next(action: action) { [uiState] _ in
 

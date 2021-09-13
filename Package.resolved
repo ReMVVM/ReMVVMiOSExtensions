@@ -5,27 +5,18 @@
         "package": "Loaders",
         "repositoryURL": "https://github.com/dgrzeszczak/Loaders",
         "state": {
-          "branch": "feature/ViewModelDriven",
-          "revision": "872dc1f035c1cd77d16e0e8dc9c52c316ee6b0a4",
+          "branch": "feature/bundleModule",
+          "revision": "2c5ad6fdd5885858d87b54916ede203ff768f664",
           "version": null
-        }
-      },
-      {
-        "package": "MVVM",
-        "repositoryURL": "https://github.com/dgrzeszczak/MVVM",
-        "state": {
-          "branch": null,
-          "revision": "178ab99ea3286629975c728cbeb68d0dcd0a3c33",
-          "version": "1.0.1"
         }
       },
       {
         "package": "ReMVVM",
-        "repositoryURL": "https://github.com/dgrzeszczak/ReMVVM",
+        "repositoryURL": "https://github.com/ReMVVM/ReMVVM",
         "state": {
-          "branch": "feature/CombineRxSwift6",
-          "revision": "f8996d3fbb137fb0ac6881ac21d62c50e19a54ca",
-          "version": null
+          "branch": null,
+          "revision": "9b3ff26dc8890c3b153599410044d9d72cc68cfd",
+          "version": "3.0.0"
         }
       },
       {
@@ -33,8 +24,8 @@
         "repositoryURL": "https://github.com/ReactiveX/RxSwift",
         "state": {
           "branch": null,
-          "revision": "c8742ed97fc2f0c015a5ea5eddefb064cd7532d2",
-          "version": "6.0.0"
+          "revision": "7c17a6ccca06b5c107cfa4284e634562ddaf5951",
+          "version": "6.2.0"
         }
       }
     ]

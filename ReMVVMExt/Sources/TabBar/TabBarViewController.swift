@@ -7,7 +7,7 @@
 //
 
 import Loaders
-import ReMVVM
+import ReMVVMCore
 import RxCocoa
 import RxSwift
 import UIKit
@@ -206,7 +206,10 @@ class ContainerViewController: UIViewController {
     }
 }
 
-class TabBarViewController: UITabBarController, NavigationContainerController, ReMVVMDriven {
+class TabBarViewController: UITabBarController, NavigationContainerController {
+
+    @ReMVVM.Dispatcher private var dispatcher
+
     init(config: NavigationConfig?, navigationControllerFactory: @escaping () -> UINavigationController) {
         self.config = config
         self.navigationControllerFactory = navigationControllerFactory
@@ -229,7 +232,7 @@ class TabBarViewController: UITabBarController, NavigationContainerController, R
     private var config: NavigationConfig?
     private var navigationControllerFactory: () -> UINavigationController
 
-    @Provided private var viewModel: NavigationViewModel<AnyNavigationItem>?
+    @ReMVVM.ViewModel private var viewModel: NavigationViewModel<AnyNavigationItem>?
 
     override open var childForStatusBarStyle: UIViewController? {
         return currentNavigationController?.topViewController
@@ -322,11 +325,7 @@ class TabBarViewController: UITabBarController, NavigationContainerController, R
     private func sendAction(for viewController: UIViewController) {
         guard let tab = viewController.tabBarItem as? TabItem else { return }
 
-        if viewController != selectedViewController {
-            remvvm.dispatch(action: tab.navigationTab.action)
-        } else {
-            remvvm.dispatch(action: Pop(mode: .popToRoot, animated: true))
-        }
+        dispatcher.dispatch(action: tab.navigationTab.action)
     }
 
 }

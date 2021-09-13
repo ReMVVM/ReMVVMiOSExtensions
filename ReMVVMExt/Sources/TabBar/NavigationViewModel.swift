@@ -7,19 +7,20 @@
 //
 
 import Foundation
-import ReMVVM
+import ReMVVMCore
+import ReMVVMRxSwift
 import RxSwift
 
-
-open class NavigationViewModel<Item: NavigationItem>: Initializable, StateObserver, ReMVVMDriven {
-    public typealias State = NavigationState
+open class NavigationViewModel<Item: NavigationItem>: Initializable {
 
     public let items: Observable<[Item]>
     public let selected: Observable<Item>
 
+    @ReMVVM.State var state: NavigationState?
+
     required public init() {
 
-        let state = NavigationViewModel.remvvm.stateSubject.rx.state
+        let state = _state.rx.state
         if Item.self == AnyNavigationItem.self {
             let tabType = state.map { type(of: $0.navigation.root.currentItem.base) }.take(1).share()
             items = state.map { $0.navigation.root.stacks.map { $0.0 }}
