@@ -8,40 +8,58 @@
 
 import Foundation
 import ReMVVMCore
-import ReMVVMRxSwift
-import RxSwift
 
-open class NavigationViewModel<Item: NavigationItem>: Initializable {
+@propertyWrapper
+public final class ObservableValue<T> {
 
-    public let items: Observable<[Item]>
-    public let selected: Observable<Item>
+    public typealias Observer = (T) -> Void
 
-    @ReMVVM.State var state: NavigationState?
-
-    required public init() {
-
-        let state = _state.rx.state
-        if Item.self == AnyNavigationItem.self {
-            let tabType = state.map { type(of: $0.navigation.root.currentItem.base) }.take(1).share()
-            items = state.map { $0.navigation.root.stacks.map { $0.0 }}
-                        .withLatestFrom(tabType) { items, tabType -> [Item] in
-                            items
-                                .filter { type(of: $0.base) == tabType }
-                                .compactMap { $0 as? Item }
-                        }
-                        .filter { $0.count != 0}
-                        .distinctUntilChanged()
-
-            selected = state.compactMap { $0.navigation.root.currentItem as? Item }
-                            .distinctUntilChanged()
-        } else {
-            items = state.map { $0.navigation.root.stacks.compactMap { $0.0.base as? Item }}
-                        .filter { $0.count != 0}
-                        .distinctUntilChanged()
-
-            selected = state.compactMap { $0.navigation.root.currentItem.base as? Item }
-                        .distinctUntilChanged()
+    public var wrappedValue: T {
+        didSet {
+            projectedValue?(wrappedValue)
         }
+    }
+
+    public init(wrappedValue: T) {
+        self.wrappedValue = wrappedValue
+    }
+
+    public var projectedValue: Observer?
+}
+
+open class NavigationViewModel<Item: NavigationItem>: Initializable, StateObserver {
+
+    @ObservableValue public var items: [Item] = []
+    @ObservableValue public var selected: Item?
+
+    required public init() { }
+
+    public func didReduce(state: NavigationState, oldState: NavigationState?) {
+        if Item.self == AnyNavigationItem.self {
+            let tabType = type(of: state.navigation.root.currentItem.base)
+            let items = state.navigation.root.stacks.map { $0.0 }
+                .filter { type(of: $0.base) == tabType }
+                .compactMap { $0 as? Item }
+
+            if items.count != 0 && items != self.items {
+                self.items = items
+            }
+
+            let selected = state.navigation.root.currentItem as? Item
+            if selected != nil && selected != self.selected {
+                self.selected = selected
+            }
+        } else {
+            let items = state.navigation.root.stacks.compactMap { $0.0.base as? Item }
+            if items.count != 0 && items != self.items {
+                self.items = items
+            }
+
+            let selected =  state.navigation.root.currentItem.base as? Item
+            if selected != nil && selected != self.selected {
+                self.selected = selected
+            }
+       }
     }
 }
 

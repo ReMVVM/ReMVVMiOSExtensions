@@ -6,7 +6,6 @@
 //
 
 import ReMVVMCore
-import RxSwift
 import UIKit
 
 public struct NavigationStateIOS<ApplicationState>: NavigationState {
@@ -90,35 +89,7 @@ public enum ReMVVMExtension {
                                  middleware: middleware,
                                  stateMappers: stateMappers)
 
-        store.add(observer: EndEditingFormListener<State>(uiState: uiState))
         ReMVVM.initialize(with: store)
         return store.any
-    }
-}
-
-public final class EndEditingFormListener<State: StoreState>: StateObserver {
-
-    let uiState: UIState
-    var disposeBag = DisposeBag()
-
-    public init(uiState: UIState) {
-        self.uiState = uiState
-    }
-
-    public func willReduce(state: State) {
-        uiState.rootViewController.view.endEditing(true)
-        uiState.modalControllers.last?.view.endEditing(true)
-    }
-
-    public func didReduce(state: State, oldState: State?) {
-        disposeBag = DisposeBag()
-
-        uiState.navigationController?.rx
-            .methodInvoked(#selector(UINavigationController.popViewController(animated:)))
-            .subscribe(onNext: { [unowned self] _ in
-                self.uiState.rootViewController.view.endEditing(true)
-                self.uiState.modalControllers.last?.view.endEditing(true)
-            })
-            .disposed(by: disposeBag)
     }
 }
