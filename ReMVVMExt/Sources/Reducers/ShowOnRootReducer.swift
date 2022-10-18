@@ -37,7 +37,6 @@ public struct ShowOnRootMiddleware<State: NavigationState>: Middleware {
 
         interceptor.next { _ in // newState - state variable is used below
             // side effect
-
             uiState.setRoot(controller: action.controllerInfo.loader.load(),
                             animated: action.controllerInfo.animated,
                             navigationBarHidden: action.navigationBarHidden)
