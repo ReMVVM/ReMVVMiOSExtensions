@@ -18,7 +18,7 @@ public struct PopReducer: Reducer {
 
     private static func updateStateTree(_ stateTree: Navigation, for mode: PopMode) -> Navigation {
         switch mode {
-        case .popToRoot:
+        case .popToRoot, .resetStack:
             return popStateTree(stateTree, dropCount: stateTree.topStack.count - 1)
         case .pop(let count):
             return popStateTree(stateTree, dropCount: count)
@@ -69,7 +69,7 @@ public struct PopMiddleware<State: NavigationState>: Middleware {
             // side effect
 
             switch action.mode {
-            case .popToRoot:
+            case .popToRoot, .resetStack:
                 self.uiState.navigationController?.popToRootViewController(animated: action.animated)
             case .pop(let count):
                 if count > 1 {

@@ -120,6 +120,7 @@ public struct Push: StoreAction {
 
 public enum PopMode {
     case popToRoot, pop(Int)
+    case resetStack
 }
 
 public struct Pop: StoreAction {

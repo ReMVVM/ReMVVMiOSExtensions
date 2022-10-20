@@ -38,9 +38,11 @@ public struct PushReducer: Reducer {
     }
 
     private static func updateStack(_ stack: [ViewModelFactory], for pop: PopMode?) -> [ViewModelFactory] {
-        guard let popMode = pop, stack.count > 1 else { return stack }
+        guard let popMode = pop, stack.count > 0 else { return stack }
 
         switch popMode {
+        case .resetStack:
+            return []
         case .pop(let count):
             let dropCount = min(count, stack.count)
             return Array(stack.dropLast(dropCount))
@@ -84,6 +86,8 @@ public struct PushMiddleware<State: NavigationState>: Middleware {
             if let pop = action.pop {
                 var viewControllers = navigationController.viewControllers
                 switch pop {
+                case .resetStack:
+                    viewControllers = []
                 case .popToRoot:
                     viewControllers = viewControllers.dropLast(viewControllers.count - 1)
                 case .pop(let count):
