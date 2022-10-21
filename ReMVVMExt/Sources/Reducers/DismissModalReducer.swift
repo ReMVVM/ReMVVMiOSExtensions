@@ -15,6 +15,8 @@ public struct DismissModalReducer: Reducer {
     public static func reduce(state: Navigation, with action: DismissModal) -> Navigation {
 
         var modals = state.modals
+
+        guard !modals.isEmpty else { return Navigation(root: state.root, modals: modals) }
         if action.dismissAllViews {
             modals.removeAll()
         } else {
