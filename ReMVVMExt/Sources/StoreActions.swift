@@ -164,10 +164,12 @@ public struct ShowModal: StoreAction {
                    withNavigationController: Bool = true,
                    showOverSplash: Bool = true,
                    showOverSelfType: Bool = true,
-                   presentationStyle: UIModalPresentationStyle = .fullScreen) where V: View {
+                   presentationStyle: UIModalPresentationStyle = .fullScreen,
+                   clearBackground: Bool = false) where V: View {
         self.controllerInfo = LoaderWithFactory(view: view,
                                                 factory: factory,
-                                                animated: animated)
+                                                animated: animated,
+                                                clearBackground: clearBackground)
         self.withNavigationController = withNavigationController
         self.showOverSplash = showOverSplash
         self.showOverSelfType = showOverSelfType
@@ -203,10 +205,16 @@ public struct LoaderWithFactory {
     @available(iOS 13.0, *)
     public init<V>(view: V,
                    factory: ViewModelFactory?,
-                   animated: Bool = true) where V: View {
+                   animated: Bool = true,
+                   clearBackground: Bool = false) where V: View {
         
         let hostLoader: Loader<UIViewController> = Loader {
-            Loader(view).load()
+            let loader = Loader(view).load()
+            if clearBackground {
+                loader.view.backgroundColor = .clear
+            }
+            return loader
+
         }
         
         self.init(loader: hostLoader, factory: factory, animated: animated)
