@@ -8,7 +8,6 @@
 
 import Loaders
 import ReMVVMCore
-import RxSwift
 import SwiftUI
 import UIKit
 

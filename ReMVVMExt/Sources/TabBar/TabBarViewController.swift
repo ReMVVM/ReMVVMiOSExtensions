@@ -8,8 +8,6 @@
 
 import Loaders
 import ReMVVMCore
-import RxCocoa
-import RxSwift
 import UIKit
 
 public struct NavigationConfig {
@@ -246,17 +244,18 @@ class TabBarViewController: UITabBarController, NavigationContainerController {
 
         delegate = self
         guard let viewModel = viewModel else { return }
+        setup(items: viewModel.items)
+        setup(current: viewModel.selected)
 
-        viewModel.items.subscribe(onNext: { [unowned self] items in
-            self.setup(items: items)
-        }).disposed(by: disposeBag)
+        viewModel.$items = { [weak self] items in
+            self?.setup(items: items)
+        }
 
-        viewModel.selected.subscribe(onNext: { [unowned self] item in
-            self.setup(current: item)
-        }).disposed(by: disposeBag)
+        viewModel.$selected = { [weak self] item in
+            self?.setup(current: item)
+        }
     }
 
-    private let disposeBag = DisposeBag()
     private func setup(items: [AnyNavigationItem]) {
 
         let tabItems: [UITabBarItem]
@@ -268,11 +267,8 @@ class TabBarViewController: UITabBarController, NavigationContainerController {
             let controlItems = result.controls
 
             controlItems.enumerated().forEach { index, elem in
-                elem.rx.controlEvent(.touchUpInside).subscribe(onNext: { [unowned self] in
-                    if let viewController = self.viewControllers?[index] {
-                        self.sendAction(for: viewController)
-                    }
-                }).disposed(by: disposeBag)
+                elem.addTarget(self, action: #selector(touchUpInside(control: )), for: .touchUpInside)
+                elem.tag = index
             }
 
             tabItems = zip(items, controlItems).map {
@@ -309,8 +305,16 @@ class TabBarViewController: UITabBarController, NavigationContainerController {
             return controller
         }
     }
+
+    @objc dynamic func touchUpInside(control: UIControl) {
+        let index = control.tag
+        guard index >= 0 && index < viewControllers?.count ?? 0,
+              let viewController = self.viewControllers?[index] else { return }
+
+        self.sendAction(for: viewController)
+    }
     
-    private func setup(current: AnyNavigationItem) {
+    private func setup(current: AnyNavigationItem?) {
 
         let selected = viewControllers?.first {
             guard let tab = $0.tabBarItem as? TabItem else { return false }

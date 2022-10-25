@@ -8,8 +8,6 @@
 
 import Foundation
 import ReMVVMCore
-import RxSwift
-import RxCocoa
 import UIKit
 
 // needed to synchronize the state when user use back button or swipe gesture
@@ -26,16 +24,14 @@ struct SynchronizeStateReducer: Reducer {
     }
 }
 
-
-
+private var swizzle: Void = UIViewController.swizzleDidDisapear()
 public final class SynchronizeStateMiddleware<State: NavigationState>: Middleware {
     public let uiState: UIState
 
     public init(uiState: UIState) {
+        _ = swizzle
         self.uiState = uiState
     }
-
-    private var disposeBag = DisposeBag()
 
     public func onNext(for state: State,
                        action: StoreAction,
@@ -52,42 +48,120 @@ public final class SynchronizeStateMiddleware<State: NavigationState>: Middlewar
             } else if action.type == .modal, uiState.modalControllers.last?.isBeingDismissed == true {
                 uiState.modalControllers.removeLast()
                 interceptor.next { [weak self] _ in
-                    let disposeBag = DisposeBag()
-                    self?.disposeBag = disposeBag
-                    self?.subscribeLastModal(dispatcher: dispatcher)
+                    self?.setupSynchronizeDelegate(dispatcher: dispatcher)
                 }
             }
         } else {
             interceptor.next { [weak self] _ in
-                let disposeBag = DisposeBag()
-                self?.disposeBag = disposeBag
-                self?.uiState.navigationController?.rx.didShow
-                    .subscribe(onNext: { con in
-                        dispatcher.dispatch(action: SynchronizeState(.navigation))
-                    })
-                    .disposed(by: disposeBag)
-
-                self?.subscribeLastModal(dispatcher: dispatcher)
+                self?.setupSynchronizeDelegate(dispatcher: dispatcher)
             }
         }
     }
 
-    private func subscribeLastModal(dispatcher: Dispatcher) {
-        guard let modal = self.uiState.modalControllers.last else { return }
-
-        modal.rx.viewDidDisappear
-            .subscribe(onNext: { _ in
-                dispatcher.dispatch(action: SynchronizeState(.modal))
-            })
-            .disposed(by: disposeBag)
+    private var synchronizeDelegate: SynchronizeDelegate?
+    private func setupSynchronizeDelegate(dispatcher: Dispatcher) {
+        synchronizeDelegate = SynchronizeDelegate(dispatcher: dispatcher,
+                                                  navigationController: uiState.navigationController,
+                                                  modal: uiState.modalControllers.last)
     }
 }
 
+// swizzle
+private class SynchronizeDelegate: NSObject, UINavigationControllerDelegate {
 
-private extension Reactive where Base: UIViewController {
+    let dispatcher: Dispatcher
 
-  var viewDidDisappear: ControlEvent<Bool> {
-    let source = self.methodInvoked(#selector(Base.viewDidDisappear)).map { $0.first as? Bool ?? false }
-    return ControlEvent(events: source)
-  }
+    // navigation controller delegate setup outside ReMVVMExt
+    weak var externalDelegate: UINavigationControllerDelegate?
+
+    init(dispatcher: Dispatcher, navigationController: UINavigationController?, modal: UIViewController?) {
+        self.dispatcher = dispatcher
+        super.init()
+
+        if let navigationController = navigationController {
+
+            if let delegate = navigationController.delegate as? SynchronizeDelegate {
+                externalDelegate = delegate.externalDelegate
+            } else {
+                externalDelegate = navigationController.delegate
+            }
+        }
+
+        navigationController?.delegate = self
+        modal?.synchronizeDelegate = self
+    }
+
+    override func forwardingTarget(for aSelector: Selector!) -> Any? {
+        externalDelegate?.responds(to: aSelector) == true ? externalDelegate : self
+    }
+
+    override func responds(to aSelector: Selector!) -> Bool {
+        super.responds(to: aSelector) || externalDelegate?.responds(to: aSelector) ?? false
+    }
+
+    func navigationController(_ navigationController: UINavigationController, didShow viewController: UIViewController, animated: Bool) {
+
+        externalDelegate?.navigationController?(navigationController, didShow: viewController, animated: animated)
+        dispatcher.dispatch(action: SynchronizeState(.navigation))
+    }
+
+    func vievDidDisapear(controller: UIViewController, animated: Bool) {
+        dispatcher.dispatch(action: SynchronizeState(.modal))
+    }
+}
+
+private extension UIViewController {
+
+    private struct AssociatedKeys {
+        static var didDisapearClosureKey = "com.db.didDisapear"
+    }
+
+    var synchronizeDelegate: SynchronizeDelegate? {
+        get { (objc_getAssociatedObject(self, &AssociatedKeys.didDisapearClosureKey) as? WeakObjectContainer)?.object as? SynchronizeDelegate }
+        set { objc_setAssociatedObject(self, &AssociatedKeys.didDisapearClosureKey, WeakObjectContainer(with: newValue), .OBJC_ASSOCIATION_RETAIN) }
+    }
+
+    private class WeakObjectContainer {
+
+        weak var object: AnyObject?
+
+        public init(with object: AnyObject?) {
+            self.object = object
+        }
+    }
+
+    private typealias ViewDidDisappearFunction = @convention(c) (UIViewController, Selector, Bool) -> Void
+    private typealias ViewDidDisappearBlock = @convention(block) (UIViewController, Bool) -> Void
+
+    static func swizzleDidDisapear() {
+        var implementation: IMP?
+
+        let swizzledBlock: ViewDidDisappearBlock = { calledViewController, animated in
+            let selector = #selector(UIViewController.viewDidDisappear(_:))
+
+            calledViewController.synchronizeDelegate?.vievDidDisapear(controller: calledViewController, animated: true)
+
+            if let implementation = implementation {
+                let viewDidAppear: ViewDidDisappearFunction = unsafeBitCast(implementation, to: ViewDidDisappearFunction.self)
+                viewDidAppear(calledViewController, selector, animated)
+            }
+
+        }
+        implementation = swizzleViewDidDisappear(UIViewController.self, to: swizzledBlock)
+    }
+
+    private static func swizzleViewDidDisappear(_ class_: AnyClass, to block: @escaping ViewDidDisappearBlock) -> IMP? {
+
+        let selector = #selector(UIViewController.viewDidDisappear(_:))
+        let method: Method? = class_getInstanceMethod(class_, selector)
+        let newImplementation: IMP = imp_implementationWithBlock(unsafeBitCast(block, to: AnyObject.self))
+
+        if let method = method {
+            let types = method_getTypeEncoding(method)
+            return class_replaceMethod(class_, selector, newImplementation, types)
+        } else {
+            class_addMethod(class_, selector, newImplementation, "")
+            return nil
+        }
+    }
 }

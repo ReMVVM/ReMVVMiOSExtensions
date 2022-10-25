@@ -19,25 +19,17 @@ let package = Package(
             .upToNextMajor(from: "1.2.0")
         ),
         .package(
-            url: "https://github.com/ReactiveX/RxSwift",
-            .upToNextMajor(from: "6.0.0")
-        ),
-        .package(
             url: "https://github.com/ReMVVM/ReMVVM",
             .upToNextMajor(from: "3.0.0")
         ),
-        //.package(path: "../ReMVVM"),
-        .package(url: "https://github.com/ReMVVM/ReMVVMRxSwift",
-                 .upToNextMajor(from: "1.0.0")
-        ),
-//        .package(path: "../ReMVVMRxSwift"),
+        //.package(path: "../ReMVVM")
     ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
         // Targets can depend on other targets in this package, and on products in packages which this package depends on.
         .target(
             name: "ReMVVMExt",
-            dependencies: ["RxSwift", "RxCocoa", "RxRelay", "Loaders", .product(name: "ReMVVMCore", package: "ReMVVM"), "ReMVVMRxSwift"],
+            dependencies: ["Loaders", .product(name: "ReMVVMCore", package: "ReMVVM")],
             path: "ReMVVMExt/Sources",
             exclude: [])
     ]
