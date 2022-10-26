@@ -11,18 +11,18 @@ import Loaders
 
 public struct UIStateConfig {
     let initialController: () -> UIViewController
-    let navigationController: () -> UINavigationController
+    let navigationController: () -> ReMVVMNavigationController
     let navigationConfigs: [NavigationConfig]
     let navigationBarHidden: Bool
 
     public init(initialController: @escaping @autoclosure () -> UIViewController,
-                navigationController: (() -> UINavigationController)? = nil,
+                navigationController: (() -> ReMVVMNavigationController)? = nil,
                 navigationConfigs: [NavigationConfig] = [],
                 navigationBarHidden: Bool = true
         ) {
 
         self.initialController = initialController
-        self.navigationController = navigationController ?? { UINavigationController() }
+        self.navigationController = navigationController ?? { ReMVVMNavigationController() }
         self.navigationConfigs = navigationConfigs
         self.navigationBarHidden = navigationBarHidden
     }
