@@ -70,6 +70,14 @@ public struct ShowModalMiddleware<State: NavigationState>: Middleware {
             }
 
             newModal.modalPresentationStyle = action.presentationStyle
+
+            if #available(iOS 15.0, *) {
+
+                if newModal.modalPresentationStyle == .pageSheet || newModal.modalPresentationStyle == .formSheet, let cornerRadius = action.preferredCornerRadius {
+                    newModal.sheetPresentationController?.preferredCornerRadius = cornerRadius
+                }
+            }
+
             uiState.present(newModal, animated: action.controllerInfo.animated)
         }
     }

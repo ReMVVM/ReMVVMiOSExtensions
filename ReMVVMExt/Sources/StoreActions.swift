@@ -140,6 +140,7 @@ public struct ShowModal: StoreAction {
     public let showOverSplash: Bool
     public let showOverSelfType: Bool
     public let presentationStyle: UIModalPresentationStyle
+    public let preferredCornerRadius: CGFloat?
     
     public init(loader: Loader<UIViewController>,
                 factory: ViewModelFactory? = nil,
@@ -147,7 +148,8 @@ public struct ShowModal: StoreAction {
                 withNavigationController: Bool = true,
                 showOverSplash: Bool = true,
                 showOverSelfType: Bool = true,
-                presentationStyle: UIModalPresentationStyle = .fullScreen) {
+                presentationStyle: UIModalPresentationStyle = .fullScreen,
+                preferredCornerRadius: CGFloat? = nil) {
         
         self.controllerInfo = LoaderWithFactory(loader: loader,
                                                 factory: factory,
@@ -156,6 +158,7 @@ public struct ShowModal: StoreAction {
         self.showOverSplash = showOverSplash
         self.showOverSelfType = showOverSelfType
         self.presentationStyle = presentationStyle
+        self.preferredCornerRadius = preferredCornerRadius
     }
     
     @available(iOS 13.0, *)
@@ -166,6 +169,7 @@ public struct ShowModal: StoreAction {
                    showOverSplash: Bool = true,
                    showOverSelfType: Bool = true,
                    presentationStyle: UIModalPresentationStyle = .fullScreen,
+                   preferredCornerRadius: CGFloat? = nil,
                    clearBackground: Bool = false) where V: View {
         self.controllerInfo = LoaderWithFactory(view: view,
                                                 factory: factory,
@@ -175,6 +179,7 @@ public struct ShowModal: StoreAction {
         self.showOverSplash = showOverSplash
         self.showOverSelfType = showOverSelfType
         self.presentationStyle = presentationStyle
+        self.preferredCornerRadius = preferredCornerRadius
     }
 }
 
