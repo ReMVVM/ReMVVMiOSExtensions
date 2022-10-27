@@ -108,11 +108,13 @@ public struct Push: StoreAction {
     public init<V>(view: V,
                    factory: ViewModelFactory? = nil,
                    pop: PopMode? = nil,
-                   animated: Bool = true) where V: View {
+                   animated: Bool = true,
+                   clearBackground: Bool = false) where V: View {
         self.pop = pop
         self.controllerInfo = LoaderWithFactory(view: view,
                                                 factory: factory,
-                                                animated: animated)
+                                                animated: animated,
+                                                clearBackground: clearBackground)
     }
     
 }
