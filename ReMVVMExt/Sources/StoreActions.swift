@@ -57,13 +57,15 @@ public struct Show: StoreAction {
     public let controllerInfo: LoaderWithFactory
     public let navigationBarHidden: Bool
     public let item: AnyNavigationItem
+    public let resetStack: Bool
     let navigationType: NavigationType
     
     public init<Item: CaseIterableNavigationItem>(on item: Item,
                                                   loader: Loader<UIViewController>,
                                                   factory: ViewModelFactory? = nil,
                                                   animated: Bool = true,
-                                                  navigationBarHidden: Bool = true) {
+                                                  navigationBarHidden: Bool = true,
+                                                  resetStack: Bool = false) {
         
         self.controllerInfo = LoaderWithFactory(loader: loader,
                                                 factory: factory,
@@ -71,6 +73,7 @@ public struct Show: StoreAction {
         self.navigationBarHidden = navigationBarHidden
         self.item = AnyNavigationItem(item)
         self.navigationType = Item.navigationType
+        self.resetStack = resetStack
     }
     
     @available(iOS 13.0, *)
@@ -78,7 +81,8 @@ public struct Show: StoreAction {
                                                      view: V,
                                                      factory: ViewModelFactory? = nil,
                                                      animated: Bool = true,
-                                                     navigationBarHidden: Bool = true) where V: View {
+                                                     navigationBarHidden: Bool = true,
+                                                     resetStack: Bool = false) where V: View {
         
         self.controllerInfo = LoaderWithFactory(view: view,
                                                 factory: factory,
@@ -86,6 +90,7 @@ public struct Show: StoreAction {
         self.navigationBarHidden = navigationBarHidden
         self.item = AnyNavigationItem(item)
         self.navigationType = Item.navigationType
+        self.resetStack = resetStack
     }
 }
 

@@ -52,7 +52,7 @@ public struct ShowMiddleware<State: NavigationState>: Middleware {
 
     public func onNext(for state: State, action: Show, interceptor: Interceptor<Show, State>, dispatcher: Dispatcher) {
 
-        guard state.navigation.root.currentItem != action.item else {
+        guard state.navigation.root.currentItem != action.item || action.resetStack else {
 
             dispatcher.dispatch(action: Pop(mode: .popToRoot, animated: true))
             return
@@ -79,7 +79,9 @@ public struct ShowMiddleware<State: NavigationState>: Middleware {
             }
 
             //set up current if empty (or reset)
-            if let top = containerController.currentNavigationController, top.viewControllers.isEmpty {
+            if let top = containerController.currentNavigationController,
+                top.viewControllers.isEmpty
+                || action.resetStack {
                 top.setViewControllers([action.controllerInfo.loader.load()],
                 animated: false)
             }
