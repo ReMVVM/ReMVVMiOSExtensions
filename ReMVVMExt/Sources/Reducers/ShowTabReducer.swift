@@ -29,12 +29,21 @@ struct ShowReducer: Reducer {
         if action.navigationType == state.root.navigationType { //check the type is the same
             stacks = state.root.stacks.map {
                 guard $0.0 == current, $0.1.isEmpty else { return $0 }
-                return ($0.0, [factory])
+                if action.resetStack {
+                    return ($0.0, [])
+                } else {
+                    return ($0.0, [factory])
+                }
+
             }
         } else {
             stacks = action.navigationType.map {
                 guard $0 == current else { return ($0, []) }
-                return ($0, [factory])
+                if action.resetStack {
+                    return ($0.0, [])
+                } else {
+                    return ($0.0, [factory])
+                }
             }
         }
         let root = NavigationRoot(current: current, stacks: stacks)
