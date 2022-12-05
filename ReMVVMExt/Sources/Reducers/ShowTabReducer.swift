@@ -40,9 +40,9 @@ struct ShowReducer: Reducer {
             stacks = action.navigationType.map {
                 guard $0 == current else { return ($0, []) }
                 if action.resetStack {
-                    return ($0.0, [])
+                    return ($0, [])
                 } else {
-                    return ($0.0, [factory])
+                    return ($0, [factory])
                 }
             }
         }
