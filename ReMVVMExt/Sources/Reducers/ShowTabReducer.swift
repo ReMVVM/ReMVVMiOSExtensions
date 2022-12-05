@@ -35,7 +35,7 @@ struct ShowReducer: Reducer {
         } else {
             stacks = action.navigationType.map {
                 guard $0 == current else { return ($0, []) }
-                return ($0.0, [factory])
+                return ($0, [factory])
             }
         }
         let root = NavigationRoot(current: current, stacks: stacks)
