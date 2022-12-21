@@ -101,7 +101,7 @@ private extension UIViewController {
 
 open class ReMVVMNavigationController: UINavigationController {
     
-    private var _delegate = Delegate()
+    @objc private var _delegate = Delegate()
     
     public override init(nibName nibNameOrNil: String? = nil, bundle nibBundleOrNil: Bundle? = nil) {
         super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
