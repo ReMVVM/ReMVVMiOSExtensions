@@ -39,6 +39,12 @@ public struct ShowModalMiddleware<State: NavigationState>: Middleware {
         let uiState = self.uiState
 
         var controller: UIViewController?
+
+        // block if previously modal is not finish dismiss animation
+        if uiState.modalControllers.last?.isBeingDismissed == true {
+            return
+        }
+
         // block if already on screen
         // TODO use some id maybe ? 
         if !action.showOverSelfType {
