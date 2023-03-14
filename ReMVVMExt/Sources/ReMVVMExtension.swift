@@ -91,7 +91,7 @@ public enum ReMVVMExtension {
                                  reducer: reducer,
                                  middleware: middleware,
                                  stateMappers: stateMappers,
-                                 logger: .noLogger)
+                                 logger: logger)
 
         ReMVVM.initialize(with: store)
         return store.any
