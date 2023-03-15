@@ -11,7 +11,9 @@ import ReMVVMCore
 import SwiftUI
 import UIKit
 
-public struct SynchronizeState: StoreAction {
+public protocol NavigationAction: StoreAction { }
+
+public struct SynchronizeState: NavigationAction {
     
     public let type: SynchronizeType
     public init(_ type: SynchronizeType) {
@@ -23,7 +25,7 @@ public struct SynchronizeState: StoreAction {
     }
 }
 
-public struct ShowOnRoot: StoreAction {
+public struct ShowOnRoot: NavigationAction {
     
     public let controllerInfo: LoaderWithFactory
     public let navigationBarHidden: Bool
@@ -53,7 +55,7 @@ public struct ShowOnRoot: StoreAction {
     }
 }
 
-public struct Show: StoreAction {
+public struct Show: NavigationAction {
     public let controllerInfo: LoaderWithFactory
     public let navigationBarHidden: Bool
     public let item: AnyNavigationItem
@@ -94,7 +96,7 @@ public struct Show: StoreAction {
     }
 }
 
-public struct Push: StoreAction {
+public struct Push: NavigationAction {
     
     public let controllerInfo: LoaderWithFactory
     public let pop: PopMode?
@@ -129,7 +131,7 @@ public enum PopMode {
     case resetStack
 }
 
-public struct Pop: StoreAction {
+public struct Pop: NavigationAction {
     public let animated: Bool
     public let mode: PopMode
     public init(mode: PopMode = .pop(1), animated: Bool = true) {
@@ -138,7 +140,7 @@ public struct Pop: StoreAction {
     }
 }
 
-public struct ShowModal: StoreAction {
+public struct ShowModal: NavigationAction {
     
     public let controllerInfo: LoaderWithFactory
     public let withNavigationController: Bool
@@ -188,7 +190,7 @@ public struct ShowModal: StoreAction {
     }
 }
 
-public struct DismissModal: StoreAction {
+public struct DismissModal: NavigationAction {
     
     public let dismissAllViews: Bool
     public let animated: Bool

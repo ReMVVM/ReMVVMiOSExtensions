@@ -34,8 +34,8 @@ public final class SynchronizeStateMiddleware<State: NavigationState>: Middlewar
     }
 
     public func onNext(for state: State,
-                       action: StoreAction,
-                       interceptor: Interceptor<StoreAction, State>,
+                       action: NavigationAction,
+                       interceptor: Interceptor<NavigationAction, State>,
                        dispatcher: Dispatcher) {
         
         if let action = action as? SynchronizeState {
