@@ -72,7 +72,9 @@ private extension UIViewController {
         let swizzledBlock: ViewDidDisappearBlock = { calledViewController, animated in
             let selector = #selector(UIViewController.viewDidDisappear(_:))
 
-            ReMVVM.Dispatcher().dispatch(action: SynchronizeState(.modal))
+            if calledViewController.isBeingDismissed {
+                ReMVVM.Dispatcher().dispatch(action: SynchronizeState(.modal))
+            }
 
             if let implementation = implementation {
                 let viewDidAppear: ViewDidDisappearFunction = unsafeBitCast(implementation, to: ViewDidDisappearFunction.self)
