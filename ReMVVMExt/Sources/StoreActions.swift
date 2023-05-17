@@ -96,6 +96,7 @@ public struct ShowModal: StoreAction {
     public let showOverSplash: Bool
     public let showOverSelfType: Bool
     public let presentationStyle: UIModalPresentationStyle
+    public let completion: (() -> Void)?
 
     public init(loader: Loader<UIViewController>,
                 factory: ViewModelFactory? = nil,
@@ -103,7 +104,8 @@ public struct ShowModal: StoreAction {
                 withNavigationController: Bool = true,
                 showOverSplash: Bool = true,
                 showOverSelfType: Bool = true,
-                presentationStyle: UIModalPresentationStyle = .fullScreen) {
+                presentationStyle: UIModalPresentationStyle = .fullScreen,
+                completion: (() -> Void)? = nil) {
 
         self.controllerInfo = LoaderWithFactory(loader: loader,
                                                 factory: factory,
@@ -112,6 +114,7 @@ public struct ShowModal: StoreAction {
         self.showOverSplash = showOverSplash
         self.showOverSelfType = showOverSelfType
         self.presentationStyle = presentationStyle
+        self.completion = completion
     }
 }
 
@@ -119,10 +122,12 @@ public struct DismissModal: StoreAction {
 
     public let dismissAllViews: Bool
     public let animated: Bool
+    public let completion: (() -> Void)?
 
-    public init(dismissAllViews: Bool = false, animated: Bool = true) {
+    public init(dismissAllViews: Bool = false, animated: Bool = true, completion: (() -> Void)? = nil) {
         self.dismissAllViews = dismissAllViews
         self.animated = animated
+        self.completion = completion
     }
 }
 

@@ -47,9 +47,9 @@ public struct DismissModalMiddleware<State: NavigationState>: Middleware {
 
             //dismiss not needed modals
             if action.dismissAllViews {
-                uiState.dismissAll(animated: action.animated)
+                uiState.dismissAll(animated: action.animated, completion: action.completion)
             } else {
-                uiState.dismiss(animated: action.animated)
+                uiState.dismiss(animated: action.animated, completion: action.completion)
             }
         }
 

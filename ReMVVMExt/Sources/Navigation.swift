@@ -9,7 +9,6 @@
 import ReMVVMCore
 
 public protocol NavigationState: StoreState {
-
     var navigation: Navigation { get }
 }
 

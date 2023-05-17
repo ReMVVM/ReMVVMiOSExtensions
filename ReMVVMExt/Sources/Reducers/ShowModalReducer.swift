@@ -53,7 +53,8 @@ public struct ShowModalMiddleware<State: NavigationState>: Middleware {
 
             //dismiss not needed modals
             uiState.dismiss(animated: action.controllerInfo.animated,
-                            number: uiState.modalControllers.count - state.navigation.modals.count + 1)
+                            number: uiState.modalControllers.count - state.navigation.modals.count + 1,
+                            completion: nil)
 
             let newModal: UIViewController
             if action.withNavigationController {
@@ -70,7 +71,7 @@ public struct ShowModalMiddleware<State: NavigationState>: Middleware {
             }
 
             newModal.modalPresentationStyle = action.presentationStyle
-            uiState.present(newModal, animated: action.controllerInfo.animated)
+            uiState.present(newModal, animated: action.controllerInfo.animated, completion: action.completion)
         }
     }
 }
