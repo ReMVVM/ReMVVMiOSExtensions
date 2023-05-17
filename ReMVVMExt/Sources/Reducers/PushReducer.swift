@@ -71,7 +71,8 @@ public struct PushMiddleware<State: NavigationState>: Middleware {
 
             //dismiss not needed modals
             uiState.dismiss(animated: action.controllerInfo.animated,
-                            number: uiState.modalControllers.count - state.navigation.modals.count)
+                            number: uiState.modalControllers.count - state.navigation.modals.count,
+                            completion: nil)
 
             guard let navigationController = uiState.navigationController else {
                 assertionFailure("PushMiddleware: No navigation Controller")
