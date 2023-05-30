@@ -10,11 +10,7 @@ import ReMVVMCore
 import UIKit
 
 public struct ShowModalReducer: Reducer {
-
-    public typealias Action = ShowModal
-
     public static func reduce(state: Navigation, with action: ShowModal) -> Navigation {
-
         let factory = action.controllerInfo.factory ?? state.factory
         let modal: Navigation.Modal = action.withNavigationController ? .navigation([factory]) : .single(factory)
         // dismiss all modals without navigation
@@ -25,8 +21,8 @@ public struct ShowModalReducer: Reducer {
 }
 
 public struct ShowModalMiddleware<State: NavigationState>: Middleware {
-
     public let uiState: UIState
+
     public init(uiState: UIState) {
         self.uiState = uiState
     }
@@ -35,7 +31,7 @@ public struct ShowModalMiddleware<State: NavigationState>: Middleware {
                             action: ShowModal,
                             interceptor: Interceptor<ShowModal, State>,
                             dispatcher: Dispatcher) {
-
+        print(action)
         let uiState = self.uiState
 
         var controller: UIViewController?
@@ -57,9 +53,13 @@ public struct ShowModalMiddleware<State: NavigationState>: Middleware {
         interceptor.next { state in
             // side effect
 
-            //dismiss not needed modals
-            uiState.dismiss(animated: action.controllerInfo.animated,
-                            number: uiState.modalControllers.count - state.navigation.modals.count + 1)
+            NavigationDispatcher.main.async { completion in
+                //dismiss not needed modals
+                uiState.dismiss(animated: action.controllerInfo.animated,
+                                number: uiState.modalControllers.count - state.navigation.modals.count + 1,
+                                completion: completion)
+
+            }
 
             let newModal: UIViewController
             if action.withNavigationController {
@@ -78,13 +78,15 @@ public struct ShowModalMiddleware<State: NavigationState>: Middleware {
             newModal.modalPresentationStyle = action.presentationStyle
 
             if #available(iOS 15.0, *) {
-
-                if newModal.modalPresentationStyle == .pageSheet || newModal.modalPresentationStyle == .formSheet, let cornerRadius = action.preferredCornerRadius {
+                if newModal.modalPresentationStyle == .pageSheet || newModal.modalPresentationStyle == .formSheet,
+                   let cornerRadius = action.preferredCornerRadius {
                     newModal.sheetPresentationController?.preferredCornerRadius = cornerRadius
                 }
             }
 
-            uiState.present(newModal, animated: action.controllerInfo.animated)
+            NavigationDispatcher.main.async { completion in
+                uiState.present(newModal, animated: action.controllerInfo.animated, completion: completion)
+            }
         }
     }
 }

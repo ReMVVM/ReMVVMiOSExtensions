@@ -12,9 +12,6 @@ import UIKit
 
 // needed to synchronize the state when user use back button or swipe gesture
 struct SynchronizeStateReducer: Reducer {
-
-    public typealias Action = SynchronizeState
-
     public static func reduce(state: Navigation, with action: SynchronizeState) -> Navigation {
         if action.type == .navigation {
             return PopReducer.reduce(state: state, with: Pop())
@@ -39,7 +36,6 @@ public final class SynchronizeStateMiddleware<State: NavigationState>: Middlewar
                        dispatcher: Dispatcher) {
         
         if let action = action as? SynchronizeState {
-
             if  action.type == .navigation,
                 let navigationCount = uiState.navigationController?.viewControllers.count,
                 state.navigation.topStack.count > navigationCount {
@@ -58,7 +54,6 @@ public final class SynchronizeStateMiddleware<State: NavigationState>: Middlewar
 
 //swizzle viewDidDissapear
 private extension UIViewController {
-
     private struct AssociatedKeys {
         static var didDisapearClosureKey = "com.db.didDisapear"
     }
@@ -86,7 +81,6 @@ private extension UIViewController {
     }
 
     private static func swizzleViewDidDisappear(_ class_: AnyClass, to block: @escaping ViewDidDisappearBlock) -> IMP? {
-
         let selector = #selector(UIViewController.viewDidDisappear(_:))
         let method: Method? = class_getInstanceMethod(class_, selector)
         let newImplementation: IMP = imp_implementationWithBlock(unsafeBitCast(block, to: AnyObject.self))
@@ -140,11 +134,10 @@ open class ReMVVMNavigationController: UINavigationController {
         }
     
         override func responds(to aSelector: Selector!) -> Bool {
-            return super.responds(to: aSelector) || delegate?.responds(to: aSelector) ?? false
+            super.responds(to: aSelector) || delegate?.responds(to: aSelector) ?? false
         }
         
         func navigationController(_ navigationController: UINavigationController, didShow viewController: UIViewController, animated: Bool) {
-
             delegate?.navigationController?(navigationController, didShow: viewController, animated: animated)
             dispatcher.dispatch(action: SynchronizeState(.navigation))
         }

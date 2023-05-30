@@ -32,11 +32,15 @@ open class NavigationViewModel<Item: NavigationItem>: Initializable, StateObserv
     @ObservableValue public var items: [Item] = []
     @ObservableValue public var selected: Item?
 
+    private var tabType: Any.Type?
+
     required public init() { }
 
     public func didReduce(state: NavigationState, oldState: NavigationState?) {
         if Item.self == AnyNavigationItem.self {
-            let tabType = type(of: state.navigation.root.currentItem.base)
+            if tabType == nil {
+                tabType = type(of: state.navigation.root.currentItem.base)
+            }
             let items = state.navigation.root.stacks.map { $0.0 }
                 .filter { type(of: $0.base) == tabType }
                 .compactMap { $0 as? Item }

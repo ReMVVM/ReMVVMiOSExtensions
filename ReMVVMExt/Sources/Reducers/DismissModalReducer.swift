@@ -9,14 +9,10 @@
 import ReMVVMCore
 
 public struct DismissModalReducer: Reducer {
-
-    public typealias Action = DismissModal
-
     public static func reduce(state: Navigation, with action: DismissModal) -> Navigation {
+        guard !state.modals.isEmpty else { return state }
 
         var modals = state.modals
-
-        guard !modals.isEmpty else { return Navigation(root: state.root, modals: modals) }
         if action.dismissAllViews {
             modals.removeAll()
         } else {
@@ -24,11 +20,9 @@ public struct DismissModalReducer: Reducer {
         }
         return Navigation(root: state.root, modals: modals)
     }
-
 }
 
 public struct DismissModalMiddleware<State: NavigationState>: Middleware {
-
     public let uiState: UIState
 
     public init(uiState: UIState) {
@@ -39,21 +33,19 @@ public struct DismissModalMiddleware<State: NavigationState>: Middleware {
                        action: DismissModal,
                        interceptor: Interceptor<DismissModal, State>,
                        dispatcher: Dispatcher) {
-
+        print(action)
         let uiState = self.uiState
-
-        guard !uiState.modalControllers.isEmpty else { return }
 
         interceptor.next { _ in
             // side effect
-
-            //dismiss not needed modals
-            if action.dismissAllViews {
-                uiState.dismissAll(animated: action.animated)
-            } else {
-                uiState.dismiss(animated: action.animated)
+            NavigationDispatcher.main.async { completion in
+                //dismiss not needed modals
+                if action.dismissAllViews {
+                    uiState.dismissAll(animated: action.animated, completion: completion)
+                } else {
+                    uiState.dismiss(animated: action.animated, completion: completion)
+                }
             }
         }
-
     }
 }

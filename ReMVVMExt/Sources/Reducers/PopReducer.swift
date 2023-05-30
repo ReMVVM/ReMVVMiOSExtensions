@@ -9,11 +9,8 @@
 import ReMVVMCore
 
 public struct PopReducer: Reducer {
-
-    public typealias Action = Pop
-
     public static func reduce(state: Navigation, with action: Pop) -> Navigation {
-        return updateStateTree(state, for: action.mode)
+        updateStateTree(state, for: action.mode)
     }
 
     private static func updateStateTree(_ stateTree: Navigation, for mode: PopMode) -> Navigation {
@@ -51,7 +48,6 @@ public struct PopReducer: Reducer {
 }
 
 public struct PopMiddleware<State: NavigationState>: Middleware {
-
     public let uiState: UIState
 
     public init(uiState: UIState) {
@@ -62,28 +58,32 @@ public struct PopMiddleware<State: NavigationState>: Middleware {
                        action: Pop,
                        interceptor: Interceptor<Pop, State>,
                        dispatcher: Dispatcher)  {
-
+        print(action)
         guard state.navigation.topStack.count > 1 else { return }
 
         interceptor.next { _ in
             // side effect
-
             switch action.mode {
             case .popToRoot, .resetStack:
-                self.uiState.navigationController?.popToRootViewController(animated: action.animated)
+                NavigationDispatcher.main.async { completion in
+                    self.uiState.navigationController?.popToRootViewController(animated: action.animated,
+                                                                               completion: completion)
+                }
             case .pop(let count):
                 if count > 1 {
                     let viewControllers = self.uiState.navigationController?.viewControllers ?? []
                     let dropCount = min(count, viewControllers.count - 1) - 1
                     let newViewControllers = Array(viewControllers.dropLast(dropCount))
-                    self.uiState.navigationController?.setViewControllers(newViewControllers, animated: false)
+                    NavigationDispatcher.main.async { completion in
+                        self.uiState.navigationController?.setViewControllers(newViewControllers,
+                                                                              animated: false,
+                                                                              completion: completion)
+                    }
                 }
-
-                self.uiState.navigationController?.popViewController(animated: action.animated)
+                NavigationDispatcher.main.async { completion in
+                    self.uiState.navigationController?.popViewController(animated: action.animated, completion: completion)
+                }
             }
-
         }
-
     }
-
 }

@@ -14,19 +14,19 @@ import UIKit
 public protocol NavigationAction: StoreAction { }
 
 public struct SynchronizeState: NavigationAction {
-    
+    public enum SynchronizeType {
+        case navigation
+        case modal
+    }
+
     public let type: SynchronizeType
+
     public init(_ type: SynchronizeType) {
         self.type = type
-    }
-    
-    public enum SynchronizeType {
-        case navigation, modal
     }
 }
 
 public struct ShowOnRoot: NavigationAction {
-    
     public let controllerInfo: LoaderWithFactory
     public let navigationBarHidden: Bool
     
@@ -34,7 +34,6 @@ public struct ShowOnRoot: NavigationAction {
                 factory: ViewModelFactory? = nil,
                 animated: Bool = true,
                 navigationBarHidden: Bool = true) {
-        
         self.controllerInfo = LoaderWithFactory(loader: loader,
                                                 factory: factory,
                                                 animated: animated)
@@ -46,7 +45,6 @@ public struct ShowOnRoot: NavigationAction {
                    factory: ViewModelFactory? = nil,
                    animated: Bool = true,
                    navigationBarHidden: Bool = true) where V: View {
-        
         self.controllerInfo = LoaderWithFactory(view: view,
                                                 factory: factory,
                                                 animated: animated)
@@ -60,7 +58,7 @@ public struct Show: NavigationAction {
     public let navigationBarHidden: Bool
     public let item: AnyNavigationItem
     public let resetStack: Bool
-    let navigationType: NavigationType
+    public let navigationType: NavigationType
     
     public init<Item: CaseIterableNavigationItem>(on item: Item,
                                                   loader: Loader<UIViewController>,
@@ -68,7 +66,6 @@ public struct Show: NavigationAction {
                                                   animated: Bool = true,
                                                   navigationBarHidden: Bool = true,
                                                   resetStack: Bool = false) {
-        
         self.controllerInfo = LoaderWithFactory(loader: loader,
                                                 factory: factory,
                                                 animated: animated)
@@ -85,7 +82,6 @@ public struct Show: NavigationAction {
                                                      animated: Bool = true,
                                                      navigationBarHidden: Bool = true,
                                                      resetStack: Bool = false) where V: View {
-        
         self.controllerInfo = LoaderWithFactory(view: view,
                                                 factory: factory,
                                                 animated: animated)
@@ -97,7 +93,6 @@ public struct Show: NavigationAction {
 }
 
 public struct Push: NavigationAction {
-    
     public let controllerInfo: LoaderWithFactory
     public let pop: PopMode?
     
@@ -123,7 +118,6 @@ public struct Push: NavigationAction {
                                                 animated: animated,
                                                 clearBackground: clearBackground)
     }
-    
 }
 
 public enum PopMode {
@@ -141,7 +135,6 @@ public struct Pop: NavigationAction {
 }
 
 public struct ShowModal: NavigationAction {
-    
     public let controllerInfo: LoaderWithFactory
     public let withNavigationController: Bool
     public let showOverSplash: Bool
@@ -157,7 +150,6 @@ public struct ShowModal: NavigationAction {
                 showOverSelfType: Bool = true,
                 presentationStyle: UIModalPresentationStyle = .fullScreen,
                 preferredCornerRadius: CGFloat? = nil) {
-        
         self.controllerInfo = LoaderWithFactory(loader: loader,
                                                 factory: factory,
                                                 animated: animated)
@@ -191,7 +183,6 @@ public struct ShowModal: NavigationAction {
 }
 
 public struct DismissModal: NavigationAction {
-    
     public let dismissAllViews: Bool
     public let animated: Bool
     
@@ -202,7 +193,6 @@ public struct DismissModal: NavigationAction {
 }
 
 public struct LoaderWithFactory {
-    
     public let loader: Loader<UIViewController>
     public let factory: ViewModelFactory?
     public let animated: Bool
@@ -220,14 +210,12 @@ public struct LoaderWithFactory {
                    factory: ViewModelFactory?,
                    animated: Bool = true,
                    clearBackground: Bool = false) where V: View {
-        
         let hostLoader: Loader<UIViewController> = Loader {
             let loader = Loader(view).load()
             if clearBackground {
                 loader.view.backgroundColor = .clear
             }
             return loader
-
         }
         
         self.init(loader: hostLoader, factory: factory, animated: animated)
