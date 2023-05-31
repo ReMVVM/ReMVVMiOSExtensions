@@ -10,7 +10,8 @@ import Loaders
 import ReMVVMCore
 import UIKit
 
-typealias NavigationType = [AnyNavigationItem]
+public typealias NavigationType = [AnyNavigationItem]
+
 extension NavigationRoot {
     var navigationType: NavigationType { stacks.map { $0.0 } }
 }
@@ -20,9 +21,7 @@ extension NavigationItem where Self: CaseIterable {
 }
 
 struct ShowReducer: Reducer {
-
     public static func reduce(state: Navigation, with action: Show) -> Navigation {
-
         let current = action.item
         var stacks: [(AnyNavigationItem, [ViewModelFactory])]
         let factory = action.controllerInfo.factory ?? state.factory
@@ -47,7 +46,6 @@ struct ShowReducer: Reducer {
 }
 
 public struct ShowMiddleware<State: NavigationState>: Middleware {
-
     public let uiState: UIState
 
     public init(uiState: UIState) {
@@ -55,17 +53,14 @@ public struct ShowMiddleware<State: NavigationState>: Middleware {
     }
 
     public func onNext(for state: State, action: Show, interceptor: Interceptor<Show, State>, dispatcher: Dispatcher) {
-
         guard state.navigation.root.currentItem != action.item || action.resetStack else {
-
             dispatcher.dispatch(action: Pop(mode: .popToRoot, animated: true))
             return
         }
 
         interceptor.next(action: action) { [uiState] _ in
-
             let wasTabOnTop = state.navigation.root.navigationType == action.navigationType
-                && uiState.rootViewController is NavigationContainerController
+            && uiState.rootViewController is NavigationContainerController
 
             let containerController: NavigationContainerController
             if wasTabOnTop {
@@ -82,22 +77,35 @@ public struct ShowMiddleware<State: NavigationState>: Middleware {
                 }
             }
 
+
             //set up current if empty (or reset)
-            if let top = containerController.currentNavigationController,
-                top.viewControllers.isEmpty
-                || action.resetStack {
-                top.setViewControllers([action.controllerInfo.loader.load()],
-                animated: false)
+            let topNavigationController = containerController
+                .containers?
+                .first { action.item == ($0.tabBarItem as? TabItem)?.navigationTab }?
+                .currentNavigationController
+
+            if let topNavigationController,
+               topNavigationController.viewControllers.isEmpty || action.resetStack {
+                NavigationDispatcher.main.async { completion in
+                    topNavigationController.setViewControllers([action.controllerInfo.loader.load()],
+                                                               animated: false,
+                                                               completion: completion)
+                }
             }
 
             if !wasTabOnTop {
-                uiState.setRoot(controller: containerController,
-                                animated: action.controllerInfo.animated,
-                                navigationBarHidden: action.navigationBarHidden)
+                NavigationDispatcher.main.async { completion in
+                    uiState.setRoot(controller: containerController,
+                                    animated: action.controllerInfo.animated,
+                                    navigationBarHidden: action.navigationBarHidden,
+                                    completion: completion)
+                }
             }
 
-            // dismiss modals
-            uiState.rootViewController.dismiss(animated: true, completion: nil)
+            NavigationDispatcher.main.async { completion in
+                // dismiss modals
+                uiState.rootViewController.dismiss(animated: true, completion: completion)
+            }
         }
     }
 }

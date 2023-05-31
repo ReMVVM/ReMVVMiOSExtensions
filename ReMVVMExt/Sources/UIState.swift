@@ -18,9 +18,7 @@ public struct UIStateConfig {
     public init(initialController: @escaping @autoclosure () -> UIViewController,
                 navigationController: (() -> ReMVVMNavigationController)? = nil,
                 navigationConfigs: [NavigationConfig] = [],
-                navigationBarHidden: Bool = true
-        ) {
-
+                navigationBarHidden: Bool = true) {
         self.initialController = initialController
         self.navigationController = navigationController ?? { ReMVVMNavigationController() }
         self.navigationConfigs = navigationConfigs
@@ -28,13 +26,12 @@ public struct UIStateConfig {
     }
 }
 
-
 public protocol NavigationContainerController where Self: UIViewController {
     var currentNavigationController: UINavigationController? { get }
+    var containers: [ContainerViewController]? { get }
 }
 
 public final class UIState {
-
     private let window: UIWindow
     private let uiStateMainController: UINavigationController
 
@@ -52,45 +49,60 @@ public final class UIState {
 
         window.rootViewController = uiStateMainController
 
-        setRoot(controller: config.initialController(), animated: false, navigationBarHidden: config.navigationBarHidden)
+        setRoot(controller: config.initialController(),
+                animated: false,
+                navigationBarHidden: config.navigationBarHidden) { }
     }
 
-    public func setRoot(controller: UIViewController, animated: Bool, navigationBarHidden: Bool) {
+    public func setRoot(controller: UIViewController,
+                        animated: Bool,
+                        navigationBarHidden: Bool,
+                        completion: @escaping () -> Void) {
         if uiStateMainController.isNavigationBarHidden != navigationBarHidden {
             uiStateMainController.setNavigationBarHidden(navigationBarHidden, animated: animated)
         }
-        uiStateMainController.setViewControllers([controller], animated: animated)
+        uiStateMainController.setViewControllers([controller],
+                                                 animated: animated,
+                                                 completion: completion)
     }
 
     public var rootViewController: UIViewController {
-        return uiStateMainController.viewControllers[0]
+        uiStateMainController.viewControllers[0]
     }
 
     public var navigationController: UINavigationController? {
-        return modalControllers.compactMap { $0 as? UINavigationController }.last ?? (rootViewController as? NavigationContainerController)?.currentNavigationController ?? uiStateMainController
+        modalControllers
+            .compactMap { $0 as? UINavigationController }
+            .last ?? (rootViewController as? NavigationContainerController)?
+            .currentNavigationController ?? uiStateMainController
     }
 
     private var topPresenter: UIViewController {
-        return modalControllers.last ?? rootViewController
+        modalControllers.last ?? rootViewController
     }
 
-    public func present(_ viewController: UIViewController, animated: Bool) {
-        topPresenter.present(viewController, animated: animated, completion: { [topPresenter] in
+    public func present(_ viewController: UIViewController, animated: Bool, completion: @escaping () -> Void) {
+        topPresenter.present(viewController, animated: animated) { [topPresenter] in
             topPresenter.setNeedsStatusBarAppearanceUpdate()
-        })
+            completion()
+        }
         modalControllers.append(viewController)
     }
 
-    public func dismissAll(animated: Bool) {
-        dismiss(animated: animated, number: Int.max)
+    public func dismissAll(animated: Bool, completion: @escaping () -> Void) {
+        dismiss(animated: animated, number: Int.max, completion: completion)
     }
 
-    public func dismiss(animated: Bool, number: Int = 1) {
+    public func dismiss(animated: Bool, number: Int = 1, completion: @escaping () -> Void) {
         let number = modalControllers.count >= number ? number : modalControllers.count
-        guard number > 0 else { return }
+        guard number > 0 else {
+            completion()
+            return
+        }
         modalControllers.removeLast(number)
-        topPresenter.dismiss(animated: animated, completion: { [topPresenter] in
+        topPresenter.dismiss(animated: animated) { [topPresenter] in
             topPresenter.setNeedsStatusBarAppearanceUpdate()
-        })
+            completion()
+        }
     }
 }

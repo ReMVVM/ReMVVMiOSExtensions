@@ -9,11 +9,7 @@
 import ReMVVMCore
 
 public struct PushReducer: Reducer {
-
-    public typealias Action = Push
-
     public static func reduce(state: Navigation, with action: Push) -> Navigation {
-
         let root: NavigationRoot
         // dismiss all modals without navigation
         var modals: [Navigation.Modal] = state.modals.reversed().drop { !$0.hasNavigation }.reversed()
@@ -54,7 +50,6 @@ public struct PushReducer: Reducer {
 }
 
 public struct PushMiddleware<State: NavigationState>: Middleware {
-
     public let uiState: UIState
 
     public init(uiState: UIState) {
@@ -65,15 +60,16 @@ public struct PushMiddleware<State: NavigationState>: Middleware {
                        action: Push,
                        interceptor: Interceptor<Push, State>,
                        dispatcher: Dispatcher) {
-
         let uiState = self.uiState
 
         interceptor.next { state in
             // side effect
-
-            //dismiss not needed modals
-            uiState.dismiss(animated: action.controllerInfo.animated,
-                            number: uiState.modalControllers.count - state.navigation.modals.count)
+            NavigationDispatcher.main.async { completion in
+                //dismiss not needed modals
+                uiState.dismiss(animated: action.controllerInfo.animated,
+                                number: uiState.modalControllers.count - state.navigation.modals.count,
+                                completion: completion)
+            }
 
             guard let navigationController = uiState.navigationController else {
                 assertionFailure("PushMiddleware: No navigation Controller")
@@ -95,12 +91,16 @@ public struct PushMiddleware<State: NavigationState>: Middleware {
                     viewControllers = viewControllers.dropLast(dropCount)
                 }
 
-                navigationController.setViewControllers(viewControllers + [controller],
-                                                        animated: action.controllerInfo.animated)
+                NavigationDispatcher.main.async { completion in
+                    navigationController.setViewControllers(viewControllers + [controller],
+                                                            animated: action.controllerInfo.animated,
+                                                            completion: completion)
+                }
             } else {
-                navigationController.pushViewController(controller, animated: action.controllerInfo.animated)
+                NavigationDispatcher.main.async { completion in
+                    navigationController.pushViewController(controller, animated: action.controllerInfo.animated, completion: completion)
+                }
             }
-
         }
     }
 }

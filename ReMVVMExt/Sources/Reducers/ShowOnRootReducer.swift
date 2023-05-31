@@ -9,9 +9,7 @@
 import ReMVVMCore
 
 struct ShowOnRootReducer: Reducer {
-
     public static func reduce(state: Navigation, with action: ShowOnRoot) -> Navigation {
-
         let current = NavigationRoot.Main.single
         let factory = action.controllerInfo.factory ?? state.factory
         let stacks = [(current, [factory])]
@@ -21,7 +19,6 @@ struct ShowOnRootReducer: Reducer {
 }
 
 public struct ShowOnRootMiddleware<State: NavigationState>: Middleware {
-
     public let uiState: UIState
 
     public init(uiState: UIState) {
@@ -32,17 +29,21 @@ public struct ShowOnRootMiddleware<State: NavigationState>: Middleware {
                        action: ShowOnRoot,
                        interceptor: Interceptor<ShowOnRoot, State>,
                        dispatcher: Dispatcher) {
-
         let uiState = self.uiState
 
         interceptor.next { _ in // newState - state variable is used below
             // side effect
-            uiState.setRoot(controller: action.controllerInfo.loader.load(),
-                            animated: action.controllerInfo.animated,
-                            navigationBarHidden: action.navigationBarHidden)
-
             // dismiss modals
-            uiState.rootViewController.dismiss(animated: true, completion: nil)
+            NavigationDispatcher.main.async { completion in
+                uiState.rootViewController.dismiss(animated: true, completion: completion)
+            }
+
+            NavigationDispatcher.main.async { completion in
+                uiState.setRoot(controller: action.controllerInfo.loader.load(),
+                                animated: action.controllerInfo.animated,
+                                navigationBarHidden: action.navigationBarHidden,
+                                completion: completion)
+            }
         }
     }
 }

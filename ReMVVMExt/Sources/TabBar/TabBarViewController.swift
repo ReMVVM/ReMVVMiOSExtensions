@@ -11,19 +11,16 @@ import ReMVVMCore
 import UIKit
 
 public struct NavigationConfig {
-
     public typealias TabBarItems<T> = (_ tabBar: UITabBar, _ items: [TabBarItem<T>]) -> TabBarItemsResult where T: NavigationItem
-
     public typealias CustomControls<T> = (_ tabBar: UITabBar, _ items: [T]) -> CustomControlsResult where T: NavigationItem
-
     public typealias Custom<T> = (_ items: [T]) -> NavigationContainerController where T: NavigationItem
 
     public enum ConfigError: Error {
-        case toManyElements
+        case tooManyElements
     }
 
     public init<T>(_ creator: @escaping TabBarItems<T>, for type: T.Type = T.self) throws where T: CaseIterableNavigationItem {
-        guard T.allCases.count <= 5 else { throw ConfigError.toManyElements }
+        guard T.allCases.count <= 5 else { throw ConfigError.tooManyElements }
 
         navigationType = T.navigationType
         config = .uiTabBar { tabBar, items in
@@ -35,7 +32,6 @@ public struct NavigationConfig {
     }
 
     public init<T>(_ creator: @escaping CustomControls<T>, for type: T.Type = T.self) where T: CaseIterableNavigationItem {
-
         navigationType = T.navigationType
         config = .customTabBar { tabBar, items in
             creator(tabBar, items.compactMap { $0.base as? T })
@@ -43,7 +39,6 @@ public struct NavigationConfig {
     }
 
     public init<T>(_ creator: @escaping Custom<T>, for type: T.Type = T.self) where T: CaseIterableNavigationItem {
-
         navigationType = T.navigationType
         config = .custom { items in
             return creator(items.compactMap {$0.base as? T})
@@ -53,7 +48,6 @@ public struct NavigationConfig {
     let navigationType: NavigationType
     let config: Config<AnyNavigationItem>
     enum Config<T> where T: NavigationItem {
-
         case uiTabBar(TabBarItems<T>)
         case customTabBar(CustomControls<T>)
         case custom(Custom<T>)
@@ -128,7 +122,6 @@ private class TabBar: UITabBar {
     }
 
     override func setItems(_ items: [UITabBarItem]?, animated: Bool) {
-
         super.setItems(items, animated: animated)
         guard controlItems != nil else { return }
         subviews
@@ -171,7 +164,6 @@ private class TabBar: UITabBar {
 }
 
 class TabItem: UITabBarItem {
-
     let navigationTab: AnyNavigationItem
     let controlItem: UIControl?
 
@@ -186,7 +178,7 @@ class TabItem: UITabBarItem {
     }
 }
 
-class ContainerViewController: UIViewController {
+public class ContainerViewController: UIViewController {
     let currentNavigationController: UINavigationController
 
     init(navigationController: UINavigationController) {
@@ -205,7 +197,7 @@ class ContainerViewController: UIViewController {
 }
 
 class TabBarViewController: UITabBarController, NavigationContainerController {
-
+    @ReMVVM.ViewModel private var viewModel: NavigationViewModel<AnyNavigationItem>?
     @ReMVVM.Dispatcher private var dispatcher
 
     init(config: NavigationConfig?, navigationControllerFactory: @escaping () -> UINavigationController) {
@@ -218,7 +210,7 @@ class TabBarViewController: UITabBarController, NavigationContainerController {
         fatalError("init(coder:) has not been implemented")
     }
 
-    private var containers: [ContainerViewController]? {
+    var containers: [ContainerViewController]? {
         viewControllers?.compactMap { $0 as? ContainerViewController }
     }
 
@@ -229,8 +221,6 @@ class TabBarViewController: UITabBarController, NavigationContainerController {
 
     private var config: NavigationConfig?
     private var navigationControllerFactory: () -> UINavigationController
-
-    @ReMVVM.ViewModel private var viewModel: NavigationViewModel<AnyNavigationItem>?
 
     override open var childForStatusBarStyle: UIViewController? {
         return currentNavigationController?.topViewController
@@ -248,19 +238,23 @@ class TabBarViewController: UITabBarController, NavigationContainerController {
         setup(current: viewModel.selected)
 
         viewModel.$items = { [weak self] items in
-            self?.setup(items: items)
+            NavigationDispatcher.main.async { [weak self] completion in
+                self?.setup(items: items)
+                completion()
+            }
         }
 
         viewModel.$selected = { [weak self] item in
-            self?.setup(current: item)
+            NavigationDispatcher.main.async { [weak self] completion in
+                self?.setup(current: item)
+                completion()
+            }
         }
     }
 
     private func setup(items: [AnyNavigationItem]) {
-
         let tabItems: [UITabBarItem]
         if case let .customTabBar(configurator) = config?.config {
-
             let result = configurator(customTabBar, items)
             customTabBar.height = result.height
             let customView = result.overelay
@@ -279,7 +273,6 @@ class TabBarViewController: UITabBarController, NavigationContainerController {
             customTabBar.controlItems = controlItems
 
             moreNavigationController.navigationBar.isHidden = true
-
         } else {
             let tabBarItems: [TabItem] = items.map { TabItem(navigationTab: $0, controlItem: nil) }
 
@@ -311,11 +304,10 @@ class TabBarViewController: UITabBarController, NavigationContainerController {
         guard index >= 0 && index < viewControllers?.count ?? 0,
               let viewController = self.viewControllers?[index] else { return }
 
-        self.sendAction(for: viewController)
+        sendAction(for: viewController)
     }
     
     private func setup(current: AnyNavigationItem?) {
-
         let selected = viewControllers?.first {
             guard let tab = $0.tabBarItem as? TabItem else { return false }
             return current == tab.navigationTab
@@ -328,17 +320,14 @@ class TabBarViewController: UITabBarController, NavigationContainerController {
 
     private func sendAction(for viewController: UIViewController) {
         guard let tab = viewController.tabBarItem as? TabItem else { return }
-
         dispatcher.dispatch(action: tab.navigationTab.action)
     }
-
 }
 
 extension TabBarViewController: UITabBarControllerDelegate {
-
     public func tabBarController(_ tabBarController: UITabBarController, shouldSelect viewController: UIViewController) -> Bool {
-        DispatchQueue.main.async {
-            self.sendAction(for: viewController)
+        DispatchQueue.main.async { [weak self] in
+            self?.sendAction(for: viewController)
         }
         return false
     }
