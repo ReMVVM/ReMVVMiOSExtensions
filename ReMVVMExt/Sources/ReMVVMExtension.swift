@@ -53,7 +53,7 @@ public enum ReMVVMExtension {
                                                        stateMappers: [StateMapper<ApplicationState>] = [],
                                                        reducer: R.Type,
                                                        middleware: [AnyMiddleware],
-                                                       logger: Logger = .noLogger) -> AnyStore where R: Reducer, R.State == ApplicationState, R.Action == StoreAction {
+                                                       logger: Logger = .defaultLogger) -> AnyStore where R: Reducer, R.State == ApplicationState, R.Action == StoreAction {
 
         let appMapper = StateMapper<NavigationStateIOS<ApplicationState>>(for: \.appState)
         let stateMappers = [appMapper] + stateMappers.map { $0.map(with: \.appState) }

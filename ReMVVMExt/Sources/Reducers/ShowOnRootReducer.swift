@@ -29,7 +29,6 @@ public struct ShowOnRootMiddleware<State: NavigationState>: Middleware {
                        action: ShowOnRoot,
                        interceptor: Interceptor<ShowOnRoot, State>,
                        dispatcher: Dispatcher) {
-        print(action)
         let uiState = self.uiState
 
         interceptor.next { _ in // newState - state variable is used below

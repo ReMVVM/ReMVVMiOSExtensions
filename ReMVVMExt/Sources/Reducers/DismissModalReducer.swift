@@ -33,7 +33,7 @@ public struct DismissModalMiddleware<State: NavigationState>: Middleware {
                        action: DismissModal,
                        interceptor: Interceptor<DismissModal, State>,
                        dispatcher: Dispatcher) {
-        print(action)
+
         let uiState = self.uiState
 
         interceptor.next { _ in

@@ -58,7 +58,6 @@ public struct PopMiddleware<State: NavigationState>: Middleware {
                        action: Pop,
                        interceptor: Interceptor<Pop, State>,
                        dispatcher: Dispatcher)  {
-        print(action)
         guard state.navigation.topStack.count > 1 else { return }
 
         interceptor.next { _ in

@@ -60,7 +60,6 @@ public struct PushMiddleware<State: NavigationState>: Middleware {
                        action: Push,
                        interceptor: Interceptor<Push, State>,
                        dispatcher: Dispatcher) {
-        print(action)
         let uiState = self.uiState
 
         interceptor.next { state in

@@ -31,7 +31,6 @@ public struct ShowModalMiddleware<State: NavigationState>: Middleware {
                             action: ShowModal,
                             interceptor: Interceptor<ShowModal, State>,
                             dispatcher: Dispatcher) {
-        print(action)
         let uiState = self.uiState
 
         var controller: UIViewController?

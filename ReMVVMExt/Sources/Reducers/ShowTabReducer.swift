@@ -53,7 +53,6 @@ public struct ShowMiddleware<State: NavigationState>: Middleware {
     }
 
     public func onNext(for state: State, action: Show, interceptor: Interceptor<Show, State>, dispatcher: Dispatcher) {
-        print(action)
         guard state.navigation.root.currentItem != action.item || action.resetStack else {
             dispatcher.dispatch(action: Pop(mode: .popToRoot, animated: true))
             return
