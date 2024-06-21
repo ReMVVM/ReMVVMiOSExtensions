@@ -39,6 +39,12 @@ public struct ShowModalMiddleware<State: NavigationState>: Middleware {
         let uiState = self.uiState
 
         var controller: UIViewController?
+
+        // block if previously modal is not finish dismiss animation
+        if uiState.modalControllers.last?.isBeingDismissed == true {
+            return
+        }
+
         // block if already on screen
         // TODO use some id maybe ? 
         if !action.showOverSelfType {
@@ -70,6 +76,14 @@ public struct ShowModalMiddleware<State: NavigationState>: Middleware {
             }
 
             newModal.modalPresentationStyle = action.presentationStyle
+
+            if #available(iOS 15.0, *) {
+
+                if newModal.modalPresentationStyle == .pageSheet || newModal.modalPresentationStyle == .formSheet, let cornerRadius = action.preferredCornerRadius {
+                    newModal.sheetPresentationController?.preferredCornerRadius = cornerRadius
+                }
+            }
+
             uiState.present(newModal, animated: action.controllerInfo.animated)
         }
     }

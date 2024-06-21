@@ -6,7 +6,6 @@
 //
 
 import ReMVVMCore
-import RxSwift
 import UIKit
 
 public struct NavigationStateIOS<ApplicationState>: NavigationState {
@@ -49,11 +48,12 @@ private enum AppNavigationReducer<State, R>: Reducer where R: Reducer, R.State =
 public enum ReMVVMExtension {
 
     public static func initialize<ApplicationState, R>(with state: ApplicationState,
-                                                    window: UIWindow,
-                                                    uiStateConfig: UIStateConfig,
-                                                    stateMappers: [StateMapper<ApplicationState>] = [],
-                                                    reducer: R.Type,
-                                                    middleware: [AnyMiddleware]) -> AnyStore where R: Reducer, R.State == ApplicationState, R.Action == StoreAction {
+                                                       window: UIWindow,
+                                                       uiStateConfig: UIStateConfig,
+                                                       stateMappers: [StateMapper<ApplicationState>] = [],
+                                                       reducer: R.Type,
+                                                       middleware: [AnyMiddleware],
+                                                       logger: Logger = .noLogger) -> AnyStore where R: Reducer, R.State == ApplicationState, R.Action == StoreAction {
 
         let appMapper = StateMapper<NavigationStateIOS<ApplicationState>>(for: \.appState)
         let stateMappers = [appMapper] + stateMappers.map { $0.map(with: \.appState) }
@@ -63,15 +63,17 @@ public enum ReMVVMExtension {
                                uiStateConfig: uiStateConfig,
                                stateMappers: stateMappers,
                                reducer: AppNavigationReducer<ApplicationState, R>.self,
-                               middleware: middleware)
+                               middleware: middleware,
+                               logger: logger)
     }
 
     public static func initialize<State, R>(with state: State,
-                                                          window: UIWindow,
-                                                          uiStateConfig: UIStateConfig,
-                                                          stateMappers: [StateMapper<State>] = [],
-                                                          reducer: R.Type,
-                                                          middleware: [AnyMiddleware]) -> AnyStore where State: NavigationState, R: Reducer, R.State == State, R.Action == StoreAction {
+                                            window: UIWindow,
+                                            uiStateConfig: UIStateConfig,
+                                            stateMappers: [StateMapper<State>] = [],
+                                            reducer: R.Type,
+                                            middleware: [AnyMiddleware],
+                                            logger: Logger = .noLogger) -> AnyStore where State: NavigationState, R: Reducer, R.State == State, R.Action == StoreAction {
 
         let uiState = UIState(window: window, config: uiStateConfig)
 
@@ -88,37 +90,10 @@ public enum ReMVVMExtension {
         let store = Store<State>(with: state,
                                  reducer: reducer,
                                  middleware: middleware,
-                                 stateMappers: stateMappers)
+                                 stateMappers: stateMappers,
+                                 logger: logger)
 
-        store.add(observer: EndEditingFormListener<State>(uiState: uiState))
         ReMVVM.initialize(with: store)
         return store.any
-    }
-}
-
-public final class EndEditingFormListener<State: StoreState>: StateObserver {
-
-    let uiState: UIState
-    var disposeBag = DisposeBag()
-
-    public init(uiState: UIState) {
-        self.uiState = uiState
-    }
-
-    public func willReduce(state: State) {
-        uiState.rootViewController.view.endEditing(true)
-        uiState.modalControllers.last?.view.endEditing(true)
-    }
-
-    public func didReduce(state: State, oldState: State?) {
-        disposeBag = DisposeBag()
-
-        uiState.navigationController?.rx
-            .methodInvoked(#selector(UINavigationController.popViewController(animated:)))
-            .subscribe(onNext: { [unowned self] _ in
-                self.uiState.rootViewController.view.endEditing(true)
-                self.uiState.modalControllers.last?.view.endEditing(true)
-            })
-            .disposed(by: disposeBag)
     }
 }

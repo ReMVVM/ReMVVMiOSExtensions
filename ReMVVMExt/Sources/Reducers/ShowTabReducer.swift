@@ -28,8 +28,12 @@ struct ShowReducer: Reducer {
         let factory = action.controllerInfo.factory ?? state.factory
         if action.navigationType == state.root.navigationType { //check the type is the same
             stacks = state.root.stacks.map {
-                guard $0.0 == current, $0.1.isEmpty else { return $0 }
+                guard $0.0 == current, $0.1.isEmpty else {
+                    if action.resetStack { return ($0.0, [factory]) }
+                    return $0
+                }
                 return ($0.0, [factory])
+
             }
         } else {
             stacks = action.navigationType.map {
@@ -52,7 +56,7 @@ public struct ShowMiddleware<State: NavigationState>: Middleware {
 
     public func onNext(for state: State, action: Show, interceptor: Interceptor<Show, State>, dispatcher: Dispatcher) {
 
-        guard state.navigation.root.currentItem != action.item else {
+        guard state.navigation.root.currentItem != action.item || action.resetStack else {
 
             dispatcher.dispatch(action: Pop(mode: .popToRoot, animated: true))
             return
@@ -79,7 +83,9 @@ public struct ShowMiddleware<State: NavigationState>: Middleware {
             }
 
             //set up current if empty (or reset)
-            if let top = containerController.currentNavigationController, top.viewControllers.isEmpty {
+            if let top = containerController.currentNavigationController,
+                top.viewControllers.isEmpty
+                || action.resetStack {
                 top.setViewControllers([action.controllerInfo.loader.load()],
                 animated: false)
             }
